@@ -13,8 +13,8 @@ public class MusicRoom {
 
     public MusicRoom(){
         this.instruments = new HashMap<>();
-        instruments.put("Teenage Drums", new Instrument("Teenage Drums", basicPath + "TeenageDrums", InstrumentType.DRUMS));
-        instruments.put("Square", new Instrument("Square", basicPath + "Square", InstrumentType.SYNTH));
+        instruments.put("Teenage Drums", new Instrument("Teenage Drums", InstrumentType.DRUMS));
+        instruments.put("Square", new Instrument("Square", InstrumentType.SYNTH));
     }
 
     public Instrument getInstrument(String instrumentName){

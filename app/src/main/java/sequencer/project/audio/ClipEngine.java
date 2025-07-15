@@ -9,9 +9,7 @@ public class ClipEngine implements AudioEngine {
         Clip clip = instrument.getSample(note.getPitch());
         if(instrument.getinstrumentType()==InstrumentType.DRUMS){
             if (clip == null) return;
-            if(clip.isRunning()){
-                        clip.stop();
-                    }
+            
             clip.setFramePosition(0);
             clip.start();
         } else {

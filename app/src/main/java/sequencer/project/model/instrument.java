@@ -16,27 +16,14 @@ public class Instrument {
     private String name;
     private String folderPath;
     private InstrumentType instrumentType;
-    private Map<Integer, Clip> samples; //map pitches to samples
-    
-    public Instrument(String name, String folderPath, InstrumentType instrumentType){
-        this.name = name;
-        this.folderPath = folderPath;
-        this.instrumentType = instrumentType;
-        if(this.instrumentType == InstrumentType.DRUMS){
-            this.samples = new HashMap<>();
-            loadSamples();
-        } else {
-            //handle non-drum instruments
-        }
-        
-    
-    }
 
-    public void playNote(Note note){        //THIS ONLY WORKS FOR DRUMS RN //move to audiomanager
-        Clip clip = samples.get(note.getPitch());
-        if (clip == null) return;
-        clip.setFramePosition(0);
-        clip.start();
+    private Map<Integer, byte[]> samples = new HashMap<>(); //map pitches to samples
+    
+    public Instrument(String name, InstrumentType instrumentType){
+        this.name = name;
+        this.folderPath = "app/src/main/resources/samples/" + name.replace(" ", "");
+        this.instrumentType = instrumentType;
+        loadSamples();
     }
     //loads samples
     private void loadSamples() {
@@ -50,8 +37,8 @@ public class Instrument {
             try{
                 System.out.println(file.getName()); //debug
                 int pitch = pitchFromFilename(file.getName());
-                Clip clip = loadWav(file);
-                samples.put(pitch, clip);
+                byte[] sample = loadWav(file);
+                samples.put(pitch, sample);
             } catch(Exception e) {
                 System.err.println("failed to load sample");
                 e.printStackTrace();
@@ -68,17 +55,30 @@ public class Instrument {
         return (octave + 1) * 12 + noteValue;
     }
     //load an audio file into a clip
-    private Clip loadWav(File file){ //REMEMBER THE LIMITATIONS OF CLIP, THIS IS NOT GOOD ENOUGH, ONLY FOR DRUMS...
+    private byte[] loadWav(File file){ //REMEMBER THE LIMITATIONS OF CLIP, THIS IS NOT GOOD ENOUGH, ONLY FOR DRUMS...
         try {
             AudioInputStream stream = AudioSystem.getAudioInputStream(file);
-            Clip clip = AudioSystem.getClip();
-            clip.open(stream);
-            return clip;
+            byte[] sample = stream.readAllBytes();
+            stream.close();
+            return sample;
         } catch (Exception e) {
             System.err.println("no...");
             return null;
         }
     }
+    
+    //getters
+    public String getName(){
+        return name;
+    }
+    public byte[] getSample(int pitch){
+        return samples.get(pitch);
+    }
+    public InstrumentType getinstrumentType(){
+        return instrumentType;
+    }
+    //much more stuff to go here probably
+    // need a dispose class probably
     //associate letters with notes
     private int getNoteValue(char note) {
         switch (note) {
@@ -97,16 +97,4 @@ public class Instrument {
             default: return -1;
         }
     }
-    //getters
-    public String getName(){
-        return name;
-    }
-    public Clip getSample(int pitch){
-        return samples.get(pitch);
-    }
-    public InstrumentType getinstrumentType(){
-        return instrumentType;
-    }
-    //much more stuff to go here probably
-    // need a dispose class probably
 }
