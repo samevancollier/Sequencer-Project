@@ -3,28 +3,36 @@
  */
 package sequencer.project;
 
-import sequencer.project.audio.musicroom;
-import sequencer.project.model.instrument;
-import sequencer.project.model.note;
-import sequencer.project.model.sequence;
-import sequencer.project.model.track;
+import sequencer.project.audio.*;
+import sequencer.project.model.*;
+
 
 public class App {
     public static void main(String[] args) {
         System.out.println("running...");
-        musicroom musicRoom = new musicroom();
-        sequence mySequence = new sequence(musicRoom);
+        MusicRoom musicRoom = new MusicRoom();
+        Sequence mySequence = new Sequence(musicRoom);
+        AudioPlayer audioPlayer = new AudioPlayer(mySequence);
+        
         mySequence.addTrack("Teenage Drums");
-        track myTrack = mySequence.getTrack(0);
-        myTrack.addNote(0, 60, 1, 127);
-        myTrack.addNote(1, 64, 1, 127);
-        myTrack.addNote(2, 62, 1, 127);
-        myTrack.addNote(3, 64, 1, 127);
-        myTrack.addNote(4, 60, 1, 127);
-        myTrack.addNote(5, 64, 1, 127);
-        myTrack.addNote(6, 62, 1, 127);
-        myTrack.addNote(7, 64, 1, 127);
-        mySequence.play();
+        Track myTrack = mySequence.getTrack(0);
+        System.out.println(myTrack.getTrackNumber());
+        myTrack.addNote(0, 60, 0, 1);
+        myTrack.addNote(1, 60, 0, 1);
+        myTrack.addNote(2, 60, 0, 1);
+        myTrack.addNote(3, 60, 0, 1);
+        myTrack.addNote(4, 60, 0, 1);
+        myTrack.addNote(5, 60, 0, 1);
+        audioPlayer.play();
+        while(audioPlayer.playing()) {
+            try {
+                 Thread.sleep(100);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+    
         System.out.println("done");
     }
 }
+

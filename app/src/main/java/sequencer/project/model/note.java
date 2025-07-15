@@ -3,7 +3,7 @@ package sequencer.project.model;
 
 //represents a single midi note
 
-public class note {
+public class Note {
     private int pitch;
     private int position;
     private int length;
@@ -16,7 +16,7 @@ public class note {
     public static final int MIN_VELOCITY = 0;
     public static final int MIDDLE_C = 60;  //should i have a max length?? probably...
     //constructor
-    public note(int initPitch, int initPosition, int initLength){
+    public Note(int initPitch, int initPosition, int initLength){
         pitch = initPitch; position = initPosition; length = initLength; velocity = 127;
     }
     //getters

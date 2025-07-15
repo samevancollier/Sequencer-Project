@@ -2,7 +2,7 @@ package sequencer.project.model;
 
 import javax.sound.sampled.*;
 
-import sequencer.project.audio.musicroom;
+import sequencer.project.audio.MusicRoom;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,19 +12,19 @@ import java.util.Map;
 
 //I SHOULD MAKE INSTRUMENT AN EXTENDABLE CLASS FOR DRUMS, PROBABLY
 
-public class instrument {
+public class Instrument {
     private String name;
     private String folderPath;
-    private String instrumentType;
-    private Map<Integer, Clip> drumSamples; //map pitches to samples
+    private InstrumentType instrumentType;
+    private Map<Integer, Clip> samples; //map pitches to samples
     
-    public instrument(String name, String folderPath, String instrumentType){
+    public Instrument(String name, String folderPath, InstrumentType instrumentType){
         this.name = name;
         this.folderPath = folderPath;
         this.instrumentType = instrumentType;
-        if(this.instrumentType == "Drums"){
-            this.drumSamples = new HashMap<>();
-            loadDrumSamples();
+        if(this.instrumentType == InstrumentType.DRUMS){
+            this.samples = new HashMap<>();
+            loadSamples();
         } else {
             //handle non-drum instruments
         }
@@ -32,14 +32,14 @@ public class instrument {
     
     }
 
-    public void playNote(note note){        //THIS ONLY WORKS FOR DRUMS RN
-        Clip clip = drumSamples.get(note.getPitch());
+    public void playNote(Note note){        //THIS ONLY WORKS FOR DRUMS RN //move to audiomanager
+        Clip clip = samples.get(note.getPitch());
         if (clip == null) return;
         clip.setFramePosition(0);
         clip.start();
     }
     //loads samples
-    private void loadDrumSamples() {
+    private void loadSamples() {
         File folder = new File(folderPath);
         if(!folder.exists() || !folder.isDirectory()) {
             System.err.println("not found...");
@@ -51,7 +51,7 @@ public class instrument {
                 System.out.println(file.getName()); //debug
                 int pitch = pitchFromFilename(file.getName());
                 Clip clip = loadWav(file);
-                drumSamples.put(pitch, clip);
+                samples.put(pitch, clip);
             } catch(Exception e) {
                 System.err.println("failed to load sample");
                 e.printStackTrace();
@@ -97,8 +97,15 @@ public class instrument {
             default: return -1;
         }
     }
+    //getters
     public String getName(){
         return name;
+    }
+    public Clip getSample(int pitch){
+        return samples.get(pitch);
+    }
+    public InstrumentType getinstrumentType(){
+        return instrumentType;
     }
     //much more stuff to go here probably
     // need a dispose class probably
