@@ -19,6 +19,7 @@ public class Track {
     private boolean soloed = false;
     private int volume; //volume 0-12
     private Map<Integer, List<Integer>> blockedNotes = new HashMap<>();
+    AudioEffect[] fX = new AudioEffect[4];
 
     public Track(String chosenInstrument, MusicRoom mR, int trackNumber){ //will have to pass in like clicks and stuff later i guess
         this.length = 256; //default values
@@ -67,8 +68,19 @@ public class Track {
             return false;
         }
     
-    
-
+    public short processEffects(short sample) {
+        for (AudioEffect effect : fX) {
+            if (effect==null){continue;}
+            sample = effect.process(sample);
+        }
+        return sample;
+    }
+    public void addFX(AudioEffect effect, int fXnum){
+        fX[fXnum]=effect;
+    }
+    public void removeFX(int fXNum){
+        fX[fXNum]=null;
+    }
         
     
     public void setVolume(int volume){
@@ -77,6 +89,9 @@ public class Track {
     public float getVolumeMultiplier(){
         if(muted){return 0.0f;}
         return volume/12.0f;
+    }
+    public AudioEffect[] getFX(){
+        return fX;
     }
     
     //getters

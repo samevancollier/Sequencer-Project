@@ -5,6 +5,8 @@ package sequencer.project;
 
 import sequencer.project.audio.*;
 import sequencer.project.model.*;
+import javafx.application.Application;
+import sequencer.project.GUI.*;
 
 
 public class App {
@@ -14,6 +16,9 @@ public class App {
         MusicRoom musicRoom = new MusicRoom();
         Sequence mySequence = new Sequence(musicRoom);
         AudioPlayer audioPlayer = new AudioPlayer(mySequence);
+        Application.launch(sequencer.project.GUI.Window.class, args);
+ 
+
         
         // Wait for audio engine to initialize
         try {
@@ -30,7 +35,7 @@ public class App {
         Track myTrack = mySequence.getTrack(0); Track myTrack2 = mySequence.getTrack(1);
         System.out.println("Track number: " + myTrack.getTrackNumber());
 
-        /*for(int i = 0; i<63; i++){
+        for(int i = 0; i<63; i++){
             myTrack.addNote(i, 60, 127, 1);
             if(i%4==0){
                 myTrack.addNote(i, 62, 127, 1);
@@ -47,7 +52,7 @@ public class App {
             }
         }
         
-
+        /* 
         try {
             audioPlayer.play();
             Thread.sleep(10000);
@@ -64,6 +69,10 @@ public class App {
         myTrack2.addNote(0, 62, 127, 40);
         myTrack2.addNote(24, 62, 0, 20);
         myTrack2.addNote(0, 62, 0, 20);
+        Bitcrush bitcrushr = new Bitcrush(); bitcrushr.setBitDepth(1);
+        myTrack2.addFX(bitcrushr, 0);
+        myTrack.addFX(bitcrushr, 0);
+        
         audioPlayer.play();
         System.out.println("Starting playback...");
         

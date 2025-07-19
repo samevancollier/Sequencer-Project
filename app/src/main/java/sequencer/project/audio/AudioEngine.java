@@ -141,8 +141,10 @@ public class AudioEngine {
                 short bufferSample = (short) ((buffer[i + 1] << 8) | (buffer[i] & 0xFF));
                 // Convert 2 bytes from sample to a 16-bit signed integer
                 short sampleValue = (short) ((sampleData[samplePos + i + 1] << 8) | (sampleData[samplePos + i] & 0xFF));
+                sampleValue = sample.getTrack().processEffects(sampleValue);
                 // Apply volume scaling to the sample
                 sampleValue = (short) (sampleValue * volumeMultiplier);
+
                 // Add the two audio signals together (this is how mixing works)
                 int mixed = bufferSample + sampleValue;
                 // Clamp the result to prevent distortion from overflow
@@ -338,6 +340,7 @@ public class AudioEngine {
         public Note getNote() { return note; }
         public Instrument getInstrument() { return instrument; }
         public int getPosition() { return position; }
+        public Track getTrack(){return track;}
 
 
         private boolean determineShouldLoop(Note note, Instrument instrument) {
