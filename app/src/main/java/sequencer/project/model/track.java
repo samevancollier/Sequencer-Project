@@ -18,6 +18,7 @@ public class Track {
     private boolean muted = false;
     private boolean soloed = false;
     private int volume; //volume 0-12
+    private Map<Integer, List<Integer>> blockedNotes = new HashMap<>();
 
     public Track(String chosenInstrument, MusicRoom mR, int trackNumber){ //will have to pass in like clicks and stuff later i guess
         this.length = 256; //default values
@@ -30,9 +31,16 @@ public class Track {
     }
     //add notes
     public void addNote(int step, int pitch, int velocity, int length) {
-        Note newNote = new Note(pitch, step, length);
-        notes.computeIfAbsent(step, k -> new ArrayList<>()).add(newNote); //if there is no list for this step, create one, otherwise add to existing list
-        System.out.println("note added.");
+        if(blockedNotes.containsKey(pitch) && blockedNotes.get(pitch).contains(step)){ //it lets me put a note on the endstep of another note, but i cant visualise if thats fine or not, but should just be a +1 somewhere so no problem
+            System.out.println("no sir");
+        } else {
+            Note newNote = new Note(pitch, step, length, this);
+            notes.computeIfAbsent(step, k -> new ArrayList<>()).add(newNote); //if there is no list for this step, create one, otherwise add to existing list
+            for(int i=step;i<step+length;i++){
+                blockedNotes.computeIfAbsent(pitch, k -> new ArrayList<>()).add(i);
+            }
+            System.out.println("note added.");
+        }
     }
     //remove notes
     public void removeNote(int step, Note note) {
@@ -44,17 +52,42 @@ public class Track {
             }
         }
     }
-    public void playNote(Note note){
-        instrument.playNote(note);
+    private Boolean hasOverlappingNote(int startStep, int pitch, int length){ //turned out to be unneccesary 
+        int stopStep=startStep+length;
+        for(int i=startStep;i<stopStep;i++){
+            if(!notes.containsKey(i)) continue;
+            for (Note existingNote : notes.get(i)){
+                if(existingNote.getPitch()!=pitch) continue;
+                if(!(startStep>existingNote.getStep()) && !(startStep<existingNote.getStep()+existingNote.getLength())) continue;
+                if(!(stopStep>existingNote.getStep()) && !(stopStep<existingNote.getStep()+existingNote.getLength())) continue;
+                System.out.println("Could not place note here!");
+                return true;
+                };
+            }
+            return false;
+        }
+    
+    
+
+        
+    
+    public void setVolume(int volume){
+        this.volume = volume;
     }
+    public float getVolumeMultiplier(){
+        if(muted){return 0.0f;}
+        return volume/12.0f;
+    }
+    
     //getters
-    public List getNotes(int step){
+    public List<Note> getNotes(int step){
         return notes.getOrDefault(step, Collections.emptyList());
     }
 
     public int getLength(){
         return length;
     }
+    public int getVolume(){return volume;}
 
     public Instrument getInstrument(){
         return instrument;
@@ -68,5 +101,9 @@ public class Track {
     public void setTrackNumber(int newTrackNumber){
         this.trackNumber = newTrackNumber;
     }
+    public void solo(){soloed=true;}
+    public void unsolo(){soloed=false;}
+    public void mute(){muted=true;}
+    public void unmute(){muted=false;}
 
 }

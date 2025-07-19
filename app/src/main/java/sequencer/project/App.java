@@ -9,12 +9,83 @@ import sequencer.project.model.*;
 
 public class App {
     public static void main(String[] args) {
-        System.out.println("running...");
+        System.out.println("Starting sequencer with mixing engine...");
+        
         MusicRoom musicRoom = new MusicRoom();
         Sequence mySequence = new Sequence(musicRoom);
         AudioPlayer audioPlayer = new AudioPlayer(mySequence);
         
-        mySequence.addTrack("Teenage Drums");
+        // Wait for audio engine to initialize
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        if (!audioPlayer.getAudioEngine().isInitialized()) {
+            System.err.println("Audio engine failed to initialize!");
+            return;
+        }
+        mySequence.addTrack("Teenage Drums"); mySequence.addTrack("Square");
+        Track myTrack = mySequence.getTrack(0); Track myTrack2 = mySequence.getTrack(1);
+        System.out.println("Track number: " + myTrack.getTrackNumber());
+
+        /*for(int i = 0; i<63; i++){
+            myTrack.addNote(i, 60, 127, 1);
+            if(i%4==0){
+                myTrack.addNote(i, 62, 127, 1);
+            }
+            if(i%2==0 || i==0 && i<15){
+                myTrack2.addNote(i, 60, 127, 1);
+            }
+            if((i%2==0 || i==0) && i>30){
+                myTrack2.addNote(i, 62, 127, 1);
+                myTrack.addNote(i, 64, 127, 1);
+            }
+            if((i%2==0 || i==0) && i>45){
+                myTrack2.addNote(i, 63, 127, 1);
+            }
+        }
+        
+
+        try {
+            audioPlayer.play();
+            Thread.sleep(10000);
+            audioPlayer.pause();
+            
+            audioPlayer.setPlaybackPoint(0);//i think this works
+            Thread.sleep(2000);
+            audioPlayer.resume();
+            
+        } catch (Exception e) {
+            System.out.println("rhewbfuewjbf");
+        }
+            */
+        myTrack2.addNote(0, 62, 127, 40);
+        myTrack2.addNote(24, 62, 0, 20);
+        myTrack2.addNote(0, 62, 0, 20);
+        audioPlayer.play();
+        System.out.println("Starting playback...");
+        
+        
+        // wait for playback to finish
+        while (audioPlayer.isPlaying()) {
+            try {
+                Thread.sleep(100);
+
+                if (audioPlayer.getAudioEngine() instanceof AudioEngine) {
+                    //Engine mixingEngine = (AudioEngine) audioPlayer.getAudioEngine();
+                    //System.out.println("Active samples: " + mixingEngine.getActiveSampleCount());
+                }
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        
+        System.out.println("Playback finished. Shutting down...");
+        audioPlayer.shutdown();
+
+        /* mySequence.addTrack("Teenage Drums");
         Track myTrack = mySequence.getTrack(0);
         System.out.println(myTrack.getTrackNumber());
         myTrack.addNote(0, 60, 0, 1);
@@ -31,7 +102,7 @@ public class App {
                 break;
             }
         }
-    
+    */
         System.out.println("done");
     }
 }

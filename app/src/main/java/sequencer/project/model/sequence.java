@@ -1,9 +1,9 @@
 package sequencer.project.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-
+import java.util.Map;
 
 import sequencer.project.audio.MusicRoom;
 
@@ -15,10 +15,11 @@ public class Sequence {
     private MusicRoom musicRoom;
     private int currentStep;
     private int length;
+    private Map<Track, Integer> volumes = new HashMap<>();//likely not neeeded
     
     public Sequence(MusicRoom mR){ //i really dont like passing this in all over the place, oh well
         this.tracks = new ArrayList<>();
-        this.bPM = 10;
+        this.bPM = 20;
         this.timeSignature = 44;
         this.musicRoom = mR;
         this.currentStep = 0;
@@ -26,12 +27,15 @@ public class Sequence {
     }
 
     public void addTrack(String chosenInstrument){
-        tracks.add(new Track(chosenInstrument, musicRoom, tracks.size()));
+        Track newTrack = new Track(chosenInstrument, musicRoom, tracks.size()+1);
+        tracks.add(newTrack);
+        volumes.put(newTrack, newTrack.getVolume());
         System.out.println("Track added!" + tracks.size());
     }
 
     public void removeTrack(int trackToRemove){
-        tracks.remove(trackToRemove-1);
+        tracks.remove(trackToRemove);
+        volumes.remove(trackToRemove);
         for(Track track : tracks){
             track.setTrackNumber(track.getTrackNumber()-1);
             System.out.println(track.getTrackNumber());
@@ -52,23 +56,5 @@ public class Sequence {
     public int getLength(){
         return length;
     }
-    //PLAY! MOVE THIS TO AUDIOPLAYER.JAVA!
-    public void play(){
-        for(int i=0;i<20;i++){ //stupid
-            for(Track track : tracks){
-                List<Note> notesToBePlayed = track.getNotes(i);
-                for(Note noteToPlay : notesToBePlayed){
-                    track.getInstrument().playNote(noteToPlay);
-                }
-            }
-            try {
-                Thread.sleep((60000/bPM)/16); // You'll need this method
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-
-
+    public Map<Track, Integer> getVolumes(){return volumes;}
 }

@@ -17,13 +17,38 @@ public class Instrument {
     private String folderPath;
     private InstrumentType instrumentType;
 
-    private Map<Integer, byte[]> samples = new HashMap<>(); //map pitches to samples
+    private Map<Integer, byte[]> samples = new HashMap<>(); // map pitches to samples
+
+    private Map<Integer, Integer> loopStartPoints = new HashMap<>(); // byte position where loop starts
+    private Map<Integer, Integer> loopEndPoints = new HashMap<>();   // byte position where loop ends
     
     public Instrument(String name, InstrumentType instrumentType){
         this.name = name;
         this.folderPath = "app/src/main/resources/samples/" + name.replace(" ", "");
         this.instrumentType = instrumentType;
         loadSamples();
+        if(instrumentType!=InstrumentType.DRUMS){
+            setDefaultLoopPoints();
+        }
+    }
+    private void setDefaultLoopPoints(){    //ADD SOMETHING TO SET LOOP POINts that dont click
+        for (Map.Entry<Integer, byte[]> entry : samples.entrySet()) { 
+            Integer pitch = entry.getKey();    // key
+            byte[] data = entry.getValue();    // value (audio bytes)
+            int defaultLoopStart = alignToSampleBoundary((int) (data.length * 0.25));
+            int defaultLoopEnd = alignToSampleBoundary((int) (data.length * 0.90));
+            
+            // Make sure loop points are on 16-bit sample boundaries (even numbers)
+            defaultLoopStart = (defaultLoopStart / 2) * 2;
+            defaultLoopEnd = (defaultLoopEnd / 2) * 2;
+            
+            loopStartPoints.put(pitch, defaultLoopStart);
+            loopEndPoints.put(pitch, defaultLoopEnd);
+        }
+    }
+    // Helper method to align to 4-byte boundaries (stereo 16-bit = 4 bytes per frame)
+    private int alignToSampleBoundary(int position) {
+        return (position / 4) * 4;
     }
     //loads samples
     private void loadSamples() {
@@ -39,6 +64,7 @@ public class Instrument {
                 int pitch = pitchFromFilename(file.getName());
                 byte[] sample = loadWav(file);
                 samples.put(pitch, sample);
+                
             } catch(Exception e) {
                 System.err.println("failed to load sample");
                 e.printStackTrace();
@@ -54,12 +80,15 @@ public class Instrument {
         int noteValue = getNoteValue(note);
         return (octave + 1) * 12 + noteValue;
     }
-    //load an audio file into a clip
-    private byte[] loadWav(File file){ //REMEMBER THE LIMITATIONS OF CLIP, THIS IS NOT GOOD ENOUGH, ONLY FOR DRUMS...
+    //load an audio file  
+    private byte[] loadWav(File file){ 
         try {
             AudioInputStream stream = AudioSystem.getAudioInputStream(file);
             byte[] sample = stream.readAllBytes();
             stream.close();
+            // DEBUG: Print the actual format
+            AudioFormat actualFormat = stream.getFormat();
+            System.out.println("Sample format for " + file.getAbsolutePath() + ": " + actualFormat);
             return sample;
         } catch (Exception e) {
             System.err.println("no...");
@@ -74,8 +103,27 @@ public class Instrument {
     public byte[] getSample(int pitch){
         return samples.get(pitch);
     }
-    public InstrumentType getinstrumentType(){
+    public InstrumentType getInstrumentType(){
         return instrumentType;
+    }
+
+    public byte[] getSampleData(int pitch) {
+        return samples.get(pitch);
+    }
+
+    public int getLoopStart(int pitch) {
+        return loopStartPoints.getOrDefault(pitch, 0);
+    }
+    
+    // Get loop end point for a pitch (in bytes)  
+    public int getLoopEnd(int pitch) {
+        byte[] data = samples.get(pitch);
+        if (data == null) return 0;
+        return loopEndPoints.getOrDefault(pitch, data.length);
+    }
+
+    public boolean hasLoopPoints(int pitch) {
+        return loopStartPoints.containsKey(pitch) && loopEndPoints.containsKey(pitch);
     }
     //much more stuff to go here probably
     // need a dispose class probably
