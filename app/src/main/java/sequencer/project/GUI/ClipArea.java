@@ -45,7 +45,7 @@ public class ClipArea extends Canvas {
 
     public void redraw(){
         GraphicsContext gc=getGraphicsContext2D(); //should this be here
-        gc.setFill(Color.web("#1e1e1e"));
+        gc.setFill(Color.web("#ffffffff"));
         gc.fillRect(0, 0, getWidth(), getHeight());
         drawLines(gc);
     }

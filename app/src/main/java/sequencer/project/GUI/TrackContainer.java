@@ -3,6 +3,8 @@ package sequencer.project.GUI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -24,6 +26,9 @@ public class TrackContainer extends ScrollPane {
     private ScrollPane masterScrollPane = null; // reference to the first one
     private GUIController controller;
     private int selectedTrackIndex=-1;
+
+    // shared scroll position property that all tracks bind to
+    private DoubleProperty masterHScroll=new SimpleDoubleProperty(0.0);
     
     public TrackContainer(GUIController controller){
         this.controller=controller;
@@ -49,7 +54,7 @@ public class TrackContainer extends ScrollPane {
         trackVBox=new VBox();
         trackVBox.setSpacing(0); // minimal spacing between tracks
         trackVBox.setPadding(Insets.EMPTY);
-        trackVBox.setStyle("-fx-background-color: #1a1a1a;");
+        trackVBox.setStyle("-fx-background-color: #ffffffff;");
         
         // configure scrollpane
         setContent(trackVBox);
@@ -72,19 +77,17 @@ public class TrackContainer extends ScrollPane {
         trackVBox.getChildren().add(newTrack);
 
         ScrollPane newScrollPane = newTrack.getClipScrollPane();
+        //dont show bars
+        newScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        newScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        newScrollPane.hvalueProperty().bindBidirectional(masterHScroll);
+
         trackScrollPanes.add(newScrollPane);    
-        
-        if(masterScrollPane == null){
-            masterScrollPane = newScrollPane; // first track becomes master
-            System.out.println("masterscrolpane SET");
-        } else {
-            // ORbind new track to master
-            
-            newScrollPane.hvalueProperty().bind(masterScrollPane.hvalueProperty());
-        }
 
     }
-    private void synchronizeScrollPositions(){
+    
+    private void synchronizeScrollPositions(){ //REDUNDANT..
         if(tracks.size() <= 1) return; // nothing to sync
         
         // Get the scroll panes from all tracks
@@ -93,6 +96,7 @@ public class TrackContainer extends ScrollPane {
             ScrollPane clipScrollPane = track.getClipScrollPane(); // you'll need to add this getter
             trackScrollPanes.add(clipScrollPane);
         }
+        
         
         // Bind all scroll positions to the first one
         ScrollPane masterScrollPane = trackScrollPanes.get(0);

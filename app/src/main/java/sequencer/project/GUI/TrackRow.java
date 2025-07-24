@@ -20,7 +20,7 @@ public class TrackRow extends HBox {
     
     private TrackControl trackControl;
     private ClipArea clipArea=new ClipArea(this); //fuuuuuck this
-    private ScrollPane clipAreaScrollPane = new ScrollPane(clipArea);
+    private ScrollPane clipAreaScrollPane=new ScrollPane(clipArea);
     //private FXArea fxArea;
     
     //private double currentZoomLevel=1.0; HANDLED GLOBALLY..by trackContainer
@@ -42,7 +42,7 @@ public class TrackRow extends HBox {
         "-fx-border-width: 2px;";
         
     private static final String UNSELECTED_STYLE=
-        "-fx-background-color: #202020;" +
+        "-fx-background-color: #ac9090ff;" +
         "-fx-border-color: #333333;" +
         "-fx-border-width: 1px;";
 
@@ -71,7 +71,7 @@ public class TrackRow extends HBox {
         clipAreaScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         clipAreaScrollPane.setFitToHeight(true);
         clipAreaScrollPane.setFitToWidth(false); // important! let it scroll horizontally
-        clipAreaScrollPane.setPannable(true);
+        clipAreaScrollPane.setPannable(false);
         HBox.setHgrow(clipAreaScrollPane, Priority.ALWAYS); // expand to fill space
         //FX AREA
         //fxArea=new FXArea();
@@ -87,4 +87,5 @@ public class TrackRow extends HBox {
 
     public ScrollPane getClipScrollPane(){return clipAreaScrollPane;}
     public double getTrackHeight(){return HEIGHT;}
+    public Color getColor(){return trackColor;}
 }
