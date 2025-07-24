@@ -16,7 +16,7 @@ public class App {
         MusicRoom musicRoom = new MusicRoom();
         Sequence mySequence = new Sequence(musicRoom);
         AudioPlayer audioPlayer = new AudioPlayer(mySequence);
-        Application.launch(sequencer.project.GUI.Window.class, args);
+        Application.launch(sequencer.project.GUI.GUILauncher.class, args);
  
 
         
