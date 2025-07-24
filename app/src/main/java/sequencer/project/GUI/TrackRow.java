@@ -89,4 +89,5 @@ public class TrackRow extends HBox {
     public double getTrackHeight(){return HEIGHT;}
     public Color getColor(){return trackColor;}
     public TrackContainer getContainer(){return parentContainer;}
+    public ClipArea getClipArea(){return clipArea;}
 }

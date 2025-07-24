@@ -30,14 +30,14 @@ public class ClipArea extends Canvas {
 
     public ClipArea(TrackRow track){
         this.track=track;
-        fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());
+        fourBars.add(new FourBar());fourBars.add(new FourBar());fourBars.add(new FourBar());
         initializeCanvas();
         
         redraw();
     }
 
     private void initializeCanvas(){
-        setWidth(barWidthInPixels * fourBars.size());
+        setWidth(barWidthInPixels * fourBars.size());//somehow fine
         setHeight(CLIP_HEIGHT);
         
    
@@ -52,22 +52,25 @@ public class ClipArea extends Canvas {
 
     private void drawLines(GraphicsContext gc){
 
-        for(int i=0;i<this.getWidth();i++){ //dubious 
+        for(int i=0;i<=this.getWidth();i++){ //dubious 
             if(i%32==0){
                 gc.setStroke(Color.web("#8a8a8aff"));
                 gc.strokeLine(i, 0, i, CLIP_HEIGHT); //fuuuucl
             }
             if(i%interval==0){
-                gc.setStroke(Color.web("#000000ff"));
+                gc.setStroke(Color.web("#5e5e5eff"));
                 gc.strokeLine(i, 0, i, CLIP_HEIGHT); //fuuuucl
             }
         }
+    }
+    public void createBlock(){//ehhhhhhhh
+        fourBars.add(new FourBar());
     }
 
    
 
     
-    //innner class fo rbars maybe it should be an actual classs thoughhhhhh
+    //innner class fo rbars maybe it should be an actual classs thoughhhhhh  maybe it sould be called Block
     public static class FourBar {
         private List<Note> notes = new ArrayList<>(); //bruh
         

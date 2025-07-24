@@ -44,12 +44,11 @@ public class TrackContainer extends ScrollPane {
         addTrack("Teenage Drums", InstrumentType.DRUMS);
         addTrack("Teenage Drums", InstrumentType.DRUMS);
         addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
+        addTrack("Square", InstrumentType.SYNTH);
+
+        TrackRow testTrack=tracks.get(0);
+        testTrack.getClipArea().createBlock();
+        
     } 
 
     private void initializeContainer(){

@@ -2,7 +2,12 @@ package sequencer.project.GUI;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
+//TO DO
+//create an EmptyTrackRow class
+//get rid of various unused things
 
 public class GUIController {
     private BorderPane root;
@@ -20,6 +25,7 @@ public class GUIController {
 
     private void initializeComponents(){
         // create main layout
+        
         root=new BorderPane();
         root.setPadding(Insets.EMPTY);
         
@@ -28,6 +34,12 @@ public class GUIController {
         
         // create track container
         trackContainer=new TrackContainer(this);
+
+        VBox top=new VBox();
+        top.getChildren().add(topControlBar);
+        top.getChildren().add(trackContainer);
+
+        
         
         // placeholder for piano roll area
         VBox pianoRollPlaceholder=new VBox();
@@ -35,9 +47,20 @@ public class GUIController {
         pianoRollPlaceholder.setStyle("-fx-background-color: #2a2a2a; -fx-padding: 10;");
         pianoRollPlaceholder.setPrefHeight(200);
         
-        root.setBottom(pianoRollPlaceholder);
-        root.setCenter(trackContainer);
-        root.setTop(topControlBar);
+        SplitPane mainSplitPane = new SplitPane();
+        mainSplitPane.setOrientation(Orientation.VERTICAL);
+        mainSplitPane.getItems().addAll(top, pianoRollPlaceholder);
+        mainSplitPane.setDividerPositions(0.8);
+        mainSplitPane.setStyle(
+            "-fx-background-color: #1a1a1a;" +
+            "-fx-box-border: transparent;"
+        );
+        SplitPane.setResizableWithParent(pianoRollPlaceholder, true);
+        SplitPane.setResizableWithParent(top, true);
+
+        root.setCenter(mainSplitPane);
+
+        //tests
     }
 
     private void setupLayout(){

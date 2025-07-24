@@ -18,7 +18,7 @@ public class GUILauncher extends Application{
         //root.setPadding(new Insets(0));
         
         // Create placeholder sections with labels
-        TransportControls transportControls = new TransportControls();
+        TransportControls transportControls = new TransportControls(); //redunaant
         
         
         
