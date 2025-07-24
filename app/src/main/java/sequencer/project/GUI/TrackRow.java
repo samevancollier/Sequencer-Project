@@ -21,7 +21,7 @@ public class TrackRow extends HBox {
     private TrackControl trackControl;
     private ClipArea clipArea=new ClipArea(this); //fuuuuuck this
     private ScrollPane clipAreaScrollPane=new ScrollPane(clipArea);
-    //private FXArea fxArea;
+    private FXArea fxArea;
     
     //private double currentZoomLevel=1.0; HANDLED GLOBALLY..by trackContainer
 
@@ -74,11 +74,11 @@ public class TrackRow extends HBox {
         clipAreaScrollPane.setPannable(false);
         HBox.setHgrow(clipAreaScrollPane, Priority.ALWAYS); // expand to fill space
         //FX AREA
-        //fxArea=new FXArea();
-        //fxArea.setPrefWidth(HEIGHT);fxArea.setPrefHeight(HEIGHT);fxArea.setMinWidth(HEIGHT);fxArea.setMinheight(HEIGHT);
+        fxArea=new FXArea();
+        fxArea.setPrefWidth(HEIGHT);fxArea.setPrefHeight(HEIGHT);fxArea.setMinWidth(HEIGHT);fxArea.setMinHeight(HEIGHT);
 
         //add all sectiond
-        getChildren().addAll(trackControl, clipAreaScrollPane);//add fx area later
+        getChildren().addAll(trackControl, clipAreaScrollPane, fxArea);//add fx area later
 
         setStyle(UNSELECTED_STYLE);
         setSpacing(0);
@@ -88,4 +88,5 @@ public class TrackRow extends HBox {
     public ScrollPane getClipScrollPane(){return clipAreaScrollPane;}
     public double getTrackHeight(){return HEIGHT;}
     public Color getColor(){return trackColor;}
+    public TrackContainer getContainer(){return parentContainer;}
 }

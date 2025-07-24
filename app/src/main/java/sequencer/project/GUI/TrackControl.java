@@ -9,7 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import sequencer.project.model.InstrumentType;
 
-public class TrackControl extends VBox {
+public class TrackControl extends VBox { //should bve hbox...?
     private Label trackName;
     private Label instrumentIcon;
     private Button muteButton;

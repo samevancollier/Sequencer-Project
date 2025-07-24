@@ -12,8 +12,8 @@ import sequencer.project.model.InstrumentType;
 
 public class TrackContainer extends ScrollPane {
     private static final int MAX_TRACKS=8;
-    private static final double TRACK_HEIGHT=80.0;
-    private static final String TRACK_CONTAINER_STYLE=
+    private static final double TRACK_HEIGHT=80.0;//idk
+    private static final String TRACK_CONTAINER_STYLE= //all this colour stuff do later
         "-fx-background-color: #1a1a1a;" +
         "-fx-border-color: #333333;" +
         "-fx-border-width: 0px;" +
@@ -27,10 +27,13 @@ public class TrackContainer extends ScrollPane {
     private GUIController controller;
     private int selectedTrackIndex=-1;
 
+    private int zoom;
+
     // shared scroll position property that all tracks bind to
     private DoubleProperty masterHScroll=new SimpleDoubleProperty(0.0);
     
     public TrackContainer(GUIController controller){
+        zoom=1;
         this.controller=controller;
         this.tracks=new ArrayList<>();
         
@@ -107,4 +110,6 @@ public class TrackContainer extends ScrollPane {
             slaveScrollPane.hvalueProperty().bind(masterScrollPane.hvalueProperty());
         }
     }
+
+    public int getZoom(){return zoom;}//bruh idk what am i gonna do with zoom
 }
