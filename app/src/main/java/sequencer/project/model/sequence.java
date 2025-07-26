@@ -17,17 +17,17 @@ public class Sequence {
     private int length;
     private Map<Track, Integer> volumes = new HashMap<>();//likely not neeeded
     
-    public Sequence(MusicRoom mR){ //i really dont like passing this in all over the place, oh well
+    public Sequence(){ //i really dont like passing this in all over the place, oh well
         this.tracks = new ArrayList<>();
         this.bPM = 20;
         this.timeSignature = 44;
-        this.musicRoom = mR;
+        this.musicRoom = MusicRoom.getInstance();
         this.currentStep = 0;
         this.length=100;
     }
 
     public void addTrack(String chosenInstrument){
-        Track newTrack = new Track(chosenInstrument, musicRoom, tracks.size()+1);
+        Track newTrack = new Track(chosenInstrument, tracks.size()+1);
         tracks.add(newTrack);
         volumes.put(newTrack, newTrack.getVolume());
         System.out.println("Track added!" + tracks.size());

@@ -8,6 +8,20 @@ import java.util.Map;
 import java.util.Set;
 
 public class MusicRoom {
+
+    private static volatile MusicRoom instance;
+    
+    public static MusicRoom getInstance(){
+        if(instance==null){
+            synchronized(MusicRoom.class){
+                if(instance==null){
+                    instance=new MusicRoom();
+                }
+            }
+        }
+        return instance;
+    }
+    
     private Map<String, Instrument> instruments;
     private String basicPath = "app/src/main/resources/samples/";
 

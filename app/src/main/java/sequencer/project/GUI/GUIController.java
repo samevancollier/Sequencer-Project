@@ -1,6 +1,7 @@
 package sequencer.project.GUI;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import sequencer.project.audio.MusicRoom;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
@@ -12,7 +13,8 @@ import javafx.scene.control.SplitPane;
 public class GUIController {
     private BorderPane root;
     private TopControlBar topControlBar;
-    private TrackContainer trackContainer;              
+    private TrackContainer trackContainer;        
+      
     //private PianoRoll pianoRoll
 
     // selected track state

@@ -6,6 +6,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import sequencer.project.model.InstrumentType;
+import sequencer.project.model.Track;
 import sequencer.project.GUI.*;
 
 public class TrackRow extends HBox {
@@ -22,6 +23,10 @@ public class TrackRow extends HBox {
     private ClipArea clipArea=new ClipArea(this); //fuuuuuck this
     private ScrollPane clipAreaScrollPane=new ScrollPane(clipArea);
     private FXArea fxArea;
+
+    //STUFF ASSOCIATED WITH BACKEND
+
+    private Track track;
     
     //private double currentZoomLevel=1.0; HANDLED GLOBALLY..by trackContainer
 
@@ -53,6 +58,7 @@ public class TrackRow extends HBox {
         this.parentContainer=parentContainer;
         this.trackColor=TRACK_COLORS[trackIndex % TRACK_COLORS.length];
         this.isSelected=false;
+        this.track=new Track(trackName, trackIndex);
         
         initializeLayout();
         //setupMouseHandlers(); //do later
@@ -84,10 +90,15 @@ public class TrackRow extends HBox {
         setSpacing(0);
         setPadding(new Insets(0));
     }
+    public void updateTrackIndex(int newIndex){
+    //update any internal track index references
+    this.trackIndex=newIndex;
+}
 
     public ScrollPane getClipScrollPane(){return clipAreaScrollPane;}
     public double getTrackHeight(){return HEIGHT;}
     public Color getColor(){return trackColor;}
     public TrackContainer getContainer(){return parentContainer;}
     public ClipArea getClipArea(){return clipArea;}
+    public Track getTrack(){return track;}
 }

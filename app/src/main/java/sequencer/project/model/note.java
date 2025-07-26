@@ -21,6 +21,9 @@ public class Note {
     public Note(int initPitch, int initPosition, int initLength, Track track){
         pitch = initPitch; step = initPosition; length = initLength; velocity = 127; this.track = track;
     }
+     public Note(int initPitch, int initPosition, int initLength){ //simple note for block purposes
+        pitch = initPitch; step = initPosition; length = initLength; velocity = 127;
+    }
     //getters
     public int getPitch(){return pitch;}
     public int getStep(){return step;}

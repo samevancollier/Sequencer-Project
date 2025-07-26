@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import sequencer.project.audio.MusicRoom;
 import sequencer.project.model.InstrumentType;
 
 public class TrackContainer extends ScrollPane {
@@ -27,6 +28,8 @@ public class TrackContainer extends ScrollPane {
     private GUIController controller;
     private int selectedTrackIndex=-1;
 
+    
+
     private int zoom;
 
     // shared scroll position property that all tracks bind to
@@ -37,6 +40,7 @@ public class TrackContainer extends ScrollPane {
         this.controller=controller;
         this.tracks=new ArrayList<>();
         
+        
         initializeContainer();
         
         //tests
@@ -46,8 +50,19 @@ public class TrackContainer extends ScrollPane {
         addTrack("Teenage Drums", InstrumentType.DRUMS);
         addTrack("Square", InstrumentType.SYNTH);
 
-        TrackRow testTrack=tracks.get(0);
-        testTrack.getClipArea().createBlock();
+        removeTrack(1);
+
+        TrackRow track0=getTrackRow(0);
+        track0.getClipArea().createBlock();
+
+        
+        try {
+            Thread.sleep(1000);
+            TrackRow testTrack=tracks.get(0);
+            testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         
     } 
 
@@ -75,6 +90,7 @@ public class TrackContainer extends ScrollPane {
 
     public void addTrack(String instrumentName, InstrumentType instrumentType){ //inputs will come from dropdown menus ahh
         TrackRow newTrack=new TrackRow(tracks.size(),instrumentName,instrumentType,this);
+        newTrack.getClipArea().createBlock();
         tracks.add(newTrack);
         trackVBox.getChildren().add(newTrack);
 
@@ -83,10 +99,52 @@ public class TrackContainer extends ScrollPane {
         newScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         newScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        newScrollPane.hvalueProperty().bindBidirectional(masterHScroll);
+        newScrollPane.hvalueProperty().bindBidirectional(masterHScroll);//bind scroll positions
 
         trackScrollPanes.add(newScrollPane);    
 
+    }
+
+    public void removeTrack(int trackIndex){
+        if(trackIndex<0 || trackIndex>=tracks.size()){
+            return; //invalid index
+        }
+        
+        //get the track to remove
+        TrackRow trackToRemove=tracks.get(trackIndex);
+        
+        //unbind scroll property to prevent memory leaks
+        ScrollPane scrollPaneToRemove=trackScrollPanes.get(trackIndex);
+        scrollPaneToRemove.hvalueProperty().unbindBidirectional(masterHScroll);
+        
+        //remove from collections
+        tracks.remove(trackIndex);
+        trackScrollPanes.remove(trackIndex);
+        
+        //remove from gui
+        trackVBox.getChildren().remove(trackToRemove);
+        
+        //update track indices for remaining tracks
+        for(int i=trackIndex;i<tracks.size();i++){
+            tracks.get(i).updateTrackIndex(i);
+        }
+    }
+
+    public void updateAllTrackWidths(){
+    // find the maximum number of blocks across all tracks
+        int maxBlocks=0;
+        for(TrackRow track : tracks){
+            int blockCount=track.getClipArea().getBlocks().size();
+            maxBlocks=Math.max(maxBlocks, blockCount);
+        }
+        
+        // ensure minimum width (at least 4 blocks worth)
+        maxBlocks=Math.max(maxBlocks, 4);
+        
+        // update all tracks to have the same width
+        for(TrackRow track : tracks){
+            track.getClipArea().setUniformWidth(maxBlocks);
+        }
     }
     
     private void synchronizeScrollPositions(){ //REDUNDANT..
@@ -111,4 +169,6 @@ public class TrackContainer extends ScrollPane {
     }
 
     public int getZoom(){return zoom;}//bruh idk what am i gonna do with zoom
+    public TrackRow getTrackRow(int trackIndex){return tracks.get(trackIndex);}
+   
 }

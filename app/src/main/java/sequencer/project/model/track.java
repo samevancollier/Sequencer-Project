@@ -21,10 +21,10 @@ public class Track {
     private Map<Integer, List<Integer>> blockedNotes = new HashMap<>();
     AudioEffect[] fX = new AudioEffect[4];
 
-    public Track(String chosenInstrument, MusicRoom mR, int trackNumber){ //will have to pass in like clicks and stuff later i guess
+    public Track(String chosenInstrument, int trackNumber){ //will have to pass in like clicks and stuff later i guess
         this.length = 256; //default values
         this.volume = 6;
-        this.musicRoom = mR;
+        this.musicRoom = MusicRoom.getInstance();
         this.instrument = musicRoom.getInstrument(chosenInstrument);
         this.notes = new HashMap<>();
         this.trackNumber = trackNumber;

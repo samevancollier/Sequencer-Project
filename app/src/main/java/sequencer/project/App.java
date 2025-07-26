@@ -13,8 +13,8 @@ public class App {
     public static void main(String[] args) {
         System.out.println("Starting sequencer with mixing engine...");
         
-        MusicRoom musicRoom = new MusicRoom();
-        Sequence mySequence = new Sequence(musicRoom);
+        
+        Sequence mySequence = new Sequence();
         AudioPlayer audioPlayer = new AudioPlayer(mySequence);
         Application.launch(sequencer.project.GUI.GUILauncher.class, args);
  
@@ -34,7 +34,7 @@ public class App {
         mySequence.addTrack("Teenage Drums"); mySequence.addTrack("Square");
         Track myTrack = mySequence.getTrack(0); Track myTrack2 = mySequence.getTrack(1);
         System.out.println("Track number: " + myTrack.getTrackNumber());
-
+        /* 
         for(int i = 0; i<63; i++){
             myTrack.addNote(i, 60, 127, 1);
             if(i%4==0){
@@ -66,6 +66,8 @@ public class App {
             System.out.println("rhewbfuewjbf");
         }
             */
+
+        /* 
         myTrack2.addNote(0, 62, 127, 40);
         myTrack2.addNote(24, 62, 0, 20);
         myTrack2.addNote(0, 62, 0, 20);
@@ -90,6 +92,7 @@ public class App {
                 break;
             }
         }
+            */
         
         System.out.println("Playback finished. Shutting down...");
         audioPlayer.shutdown();
