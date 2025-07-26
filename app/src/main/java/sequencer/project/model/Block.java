@@ -1,10 +1,11 @@
-package sequencer.project.GUI;
+package sequencer.project.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import sequencer.project.model.Note;
-import sequencer.project.model.Track;
+
+import sequencer.project.GUI.ClipArea;
+import sequencer.project.GUI.TrackRow;
 //SHOULD BE IN MODEL
 public class Block {
     private int startStep;
@@ -32,8 +33,7 @@ public class Block {
                 blockedNotes.computeIfAbsent(pitch, k->new ArrayList<>()).add(i);
             }
             System.out.println("note added.");
-            //trigger redraw
-            clipArea.redraw();
+            
         }
     }
     
@@ -55,7 +55,7 @@ public class Block {
                     blockedNotes.remove(pitch);
                 }
             }
-            clipArea.redraw();
+            
         }
     }
     
