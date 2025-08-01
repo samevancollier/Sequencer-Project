@@ -8,9 +8,43 @@ import sequencer.project.model.*;
 import javafx.application.Application;
 import sequencer.project.GUI.*;
 
-
+//to do
+//fix block swapping behaivour                                                                                          :)
+//dragging blocks between different tracks                                              
+//creating new blocks by dragging right                                                                            :)
+//remove block by dragging left                                                                                         :)
+//removing block preview                                                                                            :)
+//playback cursor :0
+//fix the overall track width being kind of weird
+//make trackcontainer big, but empty...                                                         :)
+//differentiating visually between empty blocks and not empty blocks (opacity)
+//fix the weird scrolling up inside track thing
+//colour behaivour, colour enum
+//zooming in and out :O
+//add create track button
+//delete tracks with keyboard
+//hotkeys for various things
+//copy/paste functionality
+//backgrounds                                                                                               :)
+//opaque track controls                                                 :)
+//fix various weird misalignments
+//refactor Track to use Block objects
+//move groups of tracks
+//move tracks more than one up or down at a time
+//FX area functionality
+//support empty space? 
+//hovering over block swaps blocks visually
+//clicking all empty space deselects selection
+//fix weird ghost track at bottom
+//FIX weird behaivour after track 5????
+//fix WEIRD paleness of transport controls sometimes??? after draggiog
 public class App {
     public static void main(String[] args) {
+        System.out.println("Testing enum...");
+        System.out.println(InstrumentType.DRUMS);
+        System.out.println(InstrumentType.TEENAGE_DRUMS);
+        System.out.println("Enum works!");
+    
         System.out.println("Starting sequencer with mixing engine...");
         
         
@@ -31,10 +65,11 @@ public class App {
             System.err.println("Audio engine failed to initialize!");
             return;
         }
+        /* 
         mySequence.addTrack("Teenage Drums"); mySequence.addTrack("Square");
         Track myTrack = mySequence.getTrack(0); Track myTrack2 = mySequence.getTrack(1);
         System.out.println("Track number: " + myTrack.getTrackNumber());
-        /* 
+        
         for(int i = 0; i<63; i++){
             myTrack.addNote(i, 60, 127, 1);
             if(i%4==0){
@@ -52,12 +87,13 @@ public class App {
             }
         }
         
-        /* 
+        
         try {
             audioPlayer.play();
             Thread.sleep(10000);
             audioPlayer.pause();
             
+
             audioPlayer.setPlaybackPoint(0);//i think this works
             Thread.sleep(2000);
             audioPlayer.resume();
@@ -65,16 +101,16 @@ public class App {
         } catch (Exception e) {
             System.out.println("rhewbfuewjbf");
         }
-            */
+            
 
-        /* 
+        
         myTrack2.addNote(0, 62, 127, 40);
         myTrack2.addNote(24, 62, 0, 20);
         myTrack2.addNote(0, 62, 0, 20);
         Bitcrush bitcrushr = new Bitcrush(); bitcrushr.setBitDepth(1);
         myTrack2.addFX(bitcrushr, 0);
         myTrack.addFX(bitcrushr, 0);
-        
+        */
         audioPlayer.play();
         System.out.println("Starting playback...");
         
@@ -92,7 +128,7 @@ public class App {
                 break;
             }
         }
-            */
+            
         
         System.out.println("Playback finished. Shutting down...");
         audioPlayer.shutdown();

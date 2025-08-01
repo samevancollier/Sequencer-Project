@@ -4,6 +4,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import sequencer.project.model.Block;
 import sequencer.project.model.Track;
 import java.util.ArrayList;
@@ -12,8 +13,15 @@ import java.util.List;
 public class ClipArea extends Pane {
     private TrackRow trackRow;
     private Track track;
-    private List<BlockNode> blockNodes;
+    private List<BlockNode> blockNodes;//BLOCKNODES
+    private List<Block> blocks=new ArrayList<Block>(); //BLOCKS
     private BlockNode selectedBlock;
+    private TrackContainer trackContainer;
+
+    private Rectangle newBlockPreview;
+    private List<Rectangle> previewRectangles=new ArrayList<>(); 
+
+    private Color colour;
     
     // match current settings exactly
     private double barWidthInPixels=200.0;
@@ -26,7 +34,7 @@ public class ClipArea extends Pane {
     
     // visual elements
     private List<Line> lines;
-    private List<Block> blocks=new ArrayList<Block>();
+    
 
     private int extraSpace=500;
     
@@ -36,6 +44,8 @@ public class ClipArea extends Pane {
         this.track=trackRow.getTrack();
         this.blockNodes=new ArrayList<>();
         this.lines=new ArrayList<>();
+        this.trackContainer=trackRow.getContainer();
+        this.colour=trackRow.getColour();
         
         initializeCanvas(); 
         setupMouseHandlers();
@@ -54,7 +64,7 @@ public class ClipArea extends Pane {
         setMaxHeight(CLIP_HEIGHT);
         
         
-        setStyle("-fx-background-color: #ffffff;");
+        setStyle("-fx-background-color: transparent;");
         drawLines();
     }
     
@@ -63,12 +73,12 @@ public class ClipArea extends Pane {
     }
     
     private void onAreaClicked(MouseEvent e){
-        // clicking on empty area deselects blocks
+        // clicking on empty area deselects blocks and later, other things
         if(e.getTarget()==this){
-            selectBlock(null);
+            trackRow.getContainer().deselectAll();
         }
     }
-    private void drawLines(){
+    public void drawLines(){
         getChildren().removeAll(lines);
         lines.clear();
         for(int i=50;i<totalWidth;i+=50){
@@ -87,45 +97,6 @@ public class ClipArea extends Pane {
             getChildren().add(newBlockLine);
         }
     }
-    private void drawGrid(){ //old method IGNORE
-        // clear existing grid lines
-        //getChildren().removeAll(gridLines);
-        //gridLines.clear();
-        
-        
-        for(int blockIndex=0;blockIndex<Math.max(1,blocks.size());blockIndex++){
-            double blockStartX=blockIndex*barWidthInPixels;
-            
-            // vertical lines within each block
-            for(int i=0;i<=barWidthInPixels;i++){
-                double x=blockStartX+i;
-                
-                if(i%32==0){
-                    Line line=new Line(x,0,x,CLIP_HEIGHT);
-                    line.setStroke(Color.web("#ffffffff"));
-                    line.setStrokeWidth(1.0);
-                    lines.add(line);
-                    getChildren().add(line);
-                }
-                if(i%interval==0){
-                    Line line=new Line(x,0,x,CLIP_HEIGHT);
-                    line.setStroke(Color.web("#5e5e5eff"));
-                    line.setStrokeWidth(1.0);
-                    lines.add(line);
-                    getChildren().add(line);
-                }
-            }
-            
-            // block boundary lines
-            if(blockIndex>0){
-                Line line=new Line(blockStartX,0,blockStartX,CLIP_HEIGHT);
-                line.setStroke(Color.web("#ff0000ff"));
-                line.setStrokeWidth(2);
-                lines.add(line);
-                getChildren().add(line);
-            }
-        }
-    }
     
     public void refreshBlocks(){
         // remove all existing block nodes
@@ -133,20 +104,37 @@ public class ClipArea extends Pane {
             node.refresh();
         }
     }
-    
-    public void selectBlock(BlockNode block){
-        // deselect previous block
-        if(selectedBlock!=null){
-            selectedBlock.setSelected(false);
-        }
+    public void moveBlockToPosition(BlockNode draggedNode, int fromIndex, int toIndex) {
+        if(fromIndex == toIndex) return;
         
-        selectedBlock=block;
+        System.out.println("Moving block from " + fromIndex + " to " + toIndex);
         
-        // select new block
-        if(selectedBlock!=null){
-            selectedBlock.setSelected(true);
-        }
+        // move in both lists 
+        Block draggedBlock = blocks.get(fromIndex);
+        BlockNode draggedBlockNode = blockNodes.get(fromIndex);
+
+        Block swappedBlock=blocks.get(toIndex); BlockNode swappedBlockNode=blockNodes.get(toIndex);
+        
+        blocks.set(toIndex, draggedBlock); 
+        blockNodes.set(toIndex, draggedBlockNode);
+
+        blocks.set(fromIndex,swappedBlock);
+        blockNodes.set(fromIndex,swappedBlockNode);
+        
+        draggedBlockNode.setIndex(toIndex);
+        swappedBlockNode.setIndex(fromIndex);
+
+        draggedBlock.setStartStep(toIndex*256); //i think 256 is correct, but it could be 255
+        swappedBlock.setStartStep(fromIndex*256); //i think 256 is correct, but it could be 255
+
+        draggedBlockNode.updatePosition();swappedBlockNode.updatePosition();
+        // updatblock indices and positions
+        
+        
+        trackRow.getContainer().updateAllTrackWidths();
     }
+
+    
     
     public void blockMoved(BlockNode blockNode,int newStep){
         // this is called when a block finishes being dragged
@@ -165,7 +153,7 @@ public class ClipArea extends Pane {
         System.out.println("editing block: "+blockNode.getBlock());
     }
     
-    public void createBlock(){
+    public void createBlock(){ //important
         
         int startStep=blocks.size()*STEPS_PER_BLOCK;
         Block newBlock=new Block(startStep,trackRow);
@@ -184,16 +172,21 @@ public class ClipArea extends Pane {
     public void removeBlock(int blockIndex){
         
         if(blockIndex>=0&&blockIndex<blocks.size()){
+            BlockNode nodeToRemove=blockNodes.get(blockIndex);
+            getChildren().remove(nodeToRemove);
             blocks.remove(blockIndex);
+            blockNodes.remove(blockIndex); //here
+
+            
             trackRow.getContainer().updateAllTrackWidths();
             refreshBlocks();
             drawLines();
         }
     }
     
-    public void setUniformWidth(int totalBlocks){
+    public void setUniformWidth(int totalBlocks){//FIX THE WEIRD SNAPPING DUE TO WIDTH BEING SHRUNKEN WHEN BLOCKS ARE REMOVED
         
-        double newWidth=((barWidthInPixels*totalBlocks)+500);
+        double newWidth=((barWidthInPixels*totalBlocks)+2000);
         System.out.println("Setting width to: "+newWidth+" (totalBlocks: "+totalBlocks+")");
         this.totalWidth=newWidth;
         setWidth(newWidth);
@@ -206,7 +199,7 @@ public class ClipArea extends Pane {
         drawLines();
     }
     
-    public void deleteSelectedBlock(){
+    public void deleteSelectedBlock(){ //actually just empties it! no worries
         if(selectedBlock!=null){
             // remove from model
             //track.removeBlock(selectedBlock.getBlock()); LATER
@@ -217,6 +210,69 @@ public class ClipArea extends Pane {
             
             selectedBlock=null;
         }
+    }
+
+    public void showNewBlockPreview(int blockCount){
+        hideNewBlockPreview(); // clear existing previews
+        
+        System.out.println("showing preview for "+blockCount+" blocks"); 
+        
+        // create preview rectangles for each new block
+        for(int i=0;i<blockCount;i++){
+            Rectangle preview=new Rectangle();
+            preview.setWidth(200); // BLOCK_WIDTH
+            preview.setHeight(100); // BLOCK_HEIGHT  
+            preview.setFill(Color.LIGHTGRAY);
+            preview.setStroke(Color.GRAY);
+            preview.setStrokeWidth(2);
+            preview.setOpacity(0.5);
+            
+            // position at the end of existing blocks + i
+            int position=getBlockNodes().size()+i;
+            preview.setLayoutX(position*200);
+            preview.setLayoutY(0);
+            
+            getChildren().add(preview);
+            previewRectangles.add(preview); // store all previews
+        }
+    }
+
+    public void showRemovalPreview(int numBlocksToRemove){
+        hideRemovalPreview(); // clear any existing preview
+        
+        int totalBlocks=blockNodes.size();
+        int startRemovalIndex=totalBlocks-numBlocksToRemove;
+        
+        System.out.println("showing removal preview for "+numBlocksToRemove+" blocks starting at index "+startRemovalIndex);
+        
+        // make the blocks that will be removed semi-transparent
+        for(int i=startRemovalIndex;i<totalBlocks&&i>=0;i++){
+            if(i<blockNodes.size()){
+                BlockNode node=blockNodes.get(i);
+                node.setOpacity(0.3); // eventually SHOULD BE COMPLETELY INVISIBLE MAYBE
+
+            }
+        }
+    }
+
+    public void hideRemovalPreview(){
+        // restore opacity for all blocks
+        for(BlockNode node:blockNodes){
+            node.setOpacity(1.0);
+            node.getStyleClass().remove("removal-preview");
+        }
+        System.out.println("hiding removal preview");
+    }
+
+    public void hideNewBlockPreview(){
+        // removeprevie ws
+        for(Rectangle preview:previewRectangles){
+            if(getChildren().contains(preview)){
+                getChildren().remove(preview);
+            }
+        }
+        previewRectangles.clear();
+        System.out.println("hiding preview"); 
     }
     /* 
     public void setStepWidth(double stepWidth){
@@ -248,4 +304,10 @@ public class ClipArea extends Pane {
     public int getStepsPerBlock(){
         return STEPS_PER_BLOCK;
     }
+
+    public List<BlockNode> getBlockNodes(){return blockNodes;}
+
+    public TrackRow getTrackRow(){return trackRow;}
+    public Block getSpecificBlock(int blockIndex){return blocks.get(blockIndex);}
+    public BlockNode getSpecificBlockNode(int blockIndex){return blockNodes.get(blockIndex);}
 }

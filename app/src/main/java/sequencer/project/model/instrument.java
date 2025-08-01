@@ -27,7 +27,7 @@ public class Instrument {
         this.folderPath = "app/src/main/resources/samples/" + name.replace(" ", "");
         this.instrumentType = instrumentType;
         loadSamples();
-        if(instrumentType!=InstrumentType.DRUMS){
+        if(instrumentType.getMainCategoryAsType()!=InstrumentType.DRUMS){ //CHANGED, hERE
             setDefaultLoopPoints();
         }
     }

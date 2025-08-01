@@ -31,6 +31,8 @@ public class GUILauncher extends Application{
        
         // Create the scene and set up the window
         Scene scene = new Scene(gUIController.getRoot(),1200,800);
+
+        gUIController.tests();
         
         // Configure the main window
         primaryStage.setTitle("Desktop Sequencer/Sampler");

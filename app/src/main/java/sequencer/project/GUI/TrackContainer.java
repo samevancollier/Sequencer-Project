@@ -7,6 +7,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import sequencer.project.audio.MusicRoom;
 import sequencer.project.model.InstrumentType;
@@ -28,6 +29,9 @@ public class TrackContainer extends ScrollPane {
     private GUIController controller;
     private int selectedTrackIndex=-1;
 
+    private  List<BlockNode> selectedBlocks=new ArrayList<>();
+    private  List<TrackRow> selectedTracks=new ArrayList<>();
+
     
 
     private int zoom;
@@ -43,49 +47,38 @@ public class TrackContainer extends ScrollPane {
         
         initializeContainer();
         
-        //tests
-
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Teenage Drums", InstrumentType.DRUMS);
-        addTrack("Square", InstrumentType.SYNTH);
-
-        removeTrack(1);
-
-        TrackRow track0=getTrackRow(0);
-        track0.getClipArea().createBlock();
-
         
-        try {
-            Thread.sleep(1000);
-            TrackRow testTrack=tracks.get(0);
-            testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();testTrack.getClipArea().createBlock();
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+
         
     } 
 
+    
     private void initializeContainer(){
         // create the main vbox that will hold all tracks
         trackVBox=new VBox();
         trackVBox.setSpacing(0); // minimal spacing between tracks
         trackVBox.setPadding(Insets.EMPTY);
-        trackVBox.setStyle("-fx-background-color: #ffffffff;");
+        trackVBox.setStyle("-fx-background-color: transparent;");
+
+        StackPane backgroundPane = new StackPane();
+        backgroundPane.setMinHeight(800);backgroundPane.setMinWidth(800);
+        backgroundPane.setStyle("-fx-background-color: #ffffffff;");                        //BACKGROUND HERE
+        
+        backgroundPane.getChildren().addAll(trackVBox);
         
         // configure scrollpane
-        setContent(trackVBox);
+        setContent(backgroundPane);
         setPadding(Insets.EMPTY);
-        setStyle(TRACK_CONTAINER_STYLE);
+        //setStyle(TRACK_CONTAINER_STYLE);
         setFitToWidth(true);
         setFitToHeight(false);
         
         // scroll eiyhrt way in theory
-        setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         
         // smooth scrolling
-        setPannable(true);
+        setPannable(false);
     }
 
     public void addTrack(String instrumentName, InstrumentType instrumentType){ //inputs will come from dropdown menus ahh
@@ -100,8 +93,9 @@ public class TrackContainer extends ScrollPane {
         newScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         newScrollPane.hvalueProperty().bindBidirectional(masterHScroll);//bind scroll positions
-
-        trackScrollPanes.add(newScrollPane);    
+        newTrack.getClipArea().drawLines();  
+        trackScrollPanes.add(newScrollPane);  
+        
 
     }
 
@@ -168,7 +162,92 @@ public class TrackContainer extends ScrollPane {
         }
     }
 
+    public void selectBlock(BlockNode selected,boolean isShiftHeld){ //consider making a list of lists Selected and then when keys like delete are pressed iterate through selected blocks, tracks and perform operations
+        if(!isShiftHeld){
+            deselectAll();
+            selectedBlocks.clear();
+            selected.setSelected(true);
+            selectedBlocks.add(selected);
+        } else {
+            selectedBlocks.add(selected);
+            selected.setSelected(true);  
+        }
+    }
+    public void selectTrack(TrackRow selectedTrack, boolean isShiftHeld){
+        if(!isShiftHeld){
+            deselectAll();
+            selectedTrack.setSelected(true);
+            selectedTracks.add(selectedTrack);
+            for(TrackRow trackRow : selectedTracks){
+                System.out.println("ttrack" + trackRow.getIndex());
+            }
+        } else {
+            selectedTracks.add(selectedTrack);
+            selectedTrack.setSelected(true);
+            System.out.println("PRINTING");
+            for(TrackRow trackRow : selectedTracks){
+                System.out.println("ttrack" + trackRow.getIndex());
+            }
+        }
+    }
+    public void deselectAll(){
+        for(BlockNode block : selectedBlocks) {
+            block.setSelected(false); 
+        }
+        for(TrackRow trackRow : selectedTracks){
+            trackRow.setSelected(false);
+        }
+        selectedTracks.clear();
+        selectedBlocks.clear();
+    }
+
+    public void moveTracksUp() { //MOVING MULTIPLE TRACKS UP OR DOWN AT THE SAME TIME DOES NOT WORK dont know why
+        // sort selected tracks by their current index (highest first)
+        List<TrackRow> sortedTracks = new ArrayList<>(selectedTracks);
+        sortedTracks.sort((a, b) -> Integer.compare(tracks.indexOf(b), tracks.indexOf(a)));
+        
+        for(TrackRow trackToMoveUp : sortedTracks) {
+            int index = tracks.indexOf(trackToMoveUp);
+            if(index > 0) {
+                // move in data
+                tracks.remove(index);
+                tracks.add(index - 1, trackToMoveUp);
+                
+                // move in UI
+                trackVBox.getChildren().remove(index);
+                trackVBox.getChildren().add(index - 1, trackToMoveUp);
+            }
+        }
+        updateTrackIndices(); // only call once at the end
+    }
+
+    public void moveTracksDown() {
+        // sort selected tracks by their current index
+        List<TrackRow> sortedTracks = new ArrayList<>(selectedTracks);
+        sortedTracks.sort((a, b) -> Integer.compare(tracks.indexOf(a), tracks.indexOf(b)));
+        
+        for(TrackRow trackToMoveDown : sortedTracks) {
+            int index = tracks.indexOf(trackToMoveDown);
+            if(index < tracks.size() - 1) {
+                tracks.remove(index);
+                tracks.add(index + 1, trackToMoveDown);
+                
+                trackVBox.getChildren().remove(index);
+                trackVBox.getChildren().add(index + 1, trackToMoveDown);
+            }
+        }
+        updateTrackIndices();
+    }
+    
+    private void updateTrackIndices() {
+        for (int i = 0; i < tracks.size(); i++) {
+            tracks.get(i).updateTrackIndex(i);
+        }
+    }
+
     public int getZoom(){return zoom;}//bruh idk what am i gonna do with zoom
     public TrackRow getTrackRow(int trackIndex){return tracks.get(trackIndex);}
-   
+    public List<BlockNode> getSelectedBlocks(){return selectedBlocks;}
+    public List<TrackRow> getSelectedTracks(){return selectedTracks;}
+   public boolean isTrackSelected(TrackRow trackRow) {return selectedTracks.contains(trackRow);}
 }

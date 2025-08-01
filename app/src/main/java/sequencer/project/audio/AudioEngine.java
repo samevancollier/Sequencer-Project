@@ -26,7 +26,7 @@ public class AudioEngine {
     
     // Size of audio buffer in bytes - larger = more latency but smoother playback
     private static final int BUFFER_SIZE = 1024;
-    // The buffer where we mix all samples together before sending to output
+    // The buffer where  mix all samples together before sending to output
     private byte[] mixBuffer = new byte[BUFFER_SIZE];
     // The background thread that continuously mixes and outputs audio
     private Thread audioThread;
@@ -34,7 +34,7 @@ public class AudioEngine {
     // Counter to assign unique IDs to samples - thread-safe because multiple threads might play notes
     private AtomicInteger nextSampleId = new AtomicInteger(0);
     
-    // Constructor - called when you create a new MixingAudioEngine
+    // Constructor
     public AudioEngine() {
         // Set up the audio system (speakers, format, etc.)
         initializeAudio();
@@ -129,12 +129,12 @@ public class AudioEngine {
         byte[] sampleData = sample.getData();
         // Get current playback position within this sample
         int samplePos = sample.getPosition();
-        // Calculate how many bytes we can mix (don't go past end of sample or buffer)
+        // Calculate how many bytes
         int samplesToMix = Math.min(buffer.length, sampleData.length - samplePos);
         float volumeMultiplier = sample.getVolumeMultiplier();
-        // Mix the audio data - we process 2 bytes at a time (16-bit audio = 2 bytes per sample)
+        // Mix the audio process 2 bytes at a time (16-bit audio = 2 bytes per sample)
         for (int i = 0; i < samplesToMix; i += 2) {
-            // Make sure we don't read past the end of the sample data
+            // don't read past the end of the sample data
             if (samplePos + i + 1 < sampleData.length) {
                 // Convert 2 bytes from buffer to a 16-bit signed integer
                 // Byte 1: low byte, Byte 2: high byte (little-endian format)
@@ -145,7 +145,7 @@ public class AudioEngine {
                 // Apply volume scaling to the sample
                 sampleValue = (short) (sampleValue * volumeMultiplier);
 
-                // Add the two audio signals together (this is how mixing works)
+                // Add the two audio signals together 
                 int mixed = bufferSample + sampleValue;
                 // Clamp the result to prevent distortion from overflow
                 mixed = Math.max(-32768, Math.min(32767, mixed));
@@ -156,7 +156,7 @@ public class AudioEngine {
             }
         }
         
-        // Move this sample's playback position forward by the amount we just processed
+        // Move this sample's playback position forward by the amount  just processed
         sample.advance(samplesToMix);
     }
     

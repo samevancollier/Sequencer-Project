@@ -14,8 +14,10 @@ public class Block {
     private Track track;
     private ClipArea clipArea;
     private Map<Integer, List<Integer>> blockedNotes=new HashMap<>();
+
+    private int highestNote=0; private int lowestNote=127; //for display
     
-    public Block(int startStep, TrackRow trackRow){
+    public Block(int startStep, TrackRow trackRow){ //largely exactly duplucated from Track, track becomes container for blocks, not implemented yet
         this.startStep=startStep;
         this.trackRow=trackRow;
         this.track=this.trackRow.getTrack();
@@ -28,6 +30,12 @@ public class Block {
             System.out.println("no");
         } else {
             Note newNote=new Note(pitch, step, length, track);
+            if(pitch>highestNote){
+                highestNote=pitch;
+            }
+            if(pitch<lowestNote){
+                lowestNote=pitch;
+            }
             notes.computeIfAbsent(step, k->new ArrayList<>()).add(newNote);
             for(int i=step;i<step+length;i++){
                 blockedNotes.computeIfAbsent(pitch, k->new ArrayList<>()).add(i);
@@ -37,7 +45,7 @@ public class Block {
         }
     }
     
-    public void removeNote(int step, Note note){
+    public void removeNote(int step, Note note){ //weird
         List<Note> stepNotes=notes.get(step);
         if(stepNotes!=null){
             stepNotes.remove(note);
@@ -58,6 +66,7 @@ public class Block {
             
         }
     }
+    
     
     public Map<Integer, List<Note>> getNotes(){
         return notes;
@@ -83,5 +92,9 @@ public class Block {
             allNotes.addAll(stepNotes);
         }
         return allNotes;
+    }
+
+    public int getRange(){
+        return highestNote-lowestNote;
     }
 }
