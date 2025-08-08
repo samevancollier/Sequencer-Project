@@ -25,7 +25,7 @@ public class TrackControl extends VBox { //should bve hbox...?
         this.setSpacing(0);
         this.setPadding(new Insets(0));
         this.setAlignment(Pos.TOP_LEFT);
-        this.setMinWidth(200);this.setMinHeight(200);
+        this.setMinWidth(100);this.setMinHeight(100);this.setMaxWidth(100);this.setMaxHeight(100);
         this.setStyle("-fx-background-color: #797979ff; -fx-border-color: lightgray; -fx-border-width: 0 0 1 0;");
        
 
@@ -66,10 +66,10 @@ public class TrackControl extends VBox { //should bve hbox...?
 
     }
     private void styleButton(Button button){
-        button.setMinWidth(30);
-        button.setMinHeight(25);
-        button.setMaxWidth(30);
-        button.setMaxHeight(25);
+        button.setMinWidth(15);
+        button.setMinHeight(15);
+        button.setMaxWidth(15);
+        button.setMaxHeight(15);
         button.setFont(Font.font("Times New Roman", 10));
     }
 

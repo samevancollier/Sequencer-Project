@@ -50,6 +50,8 @@ public class BlockNode extends Pane {
         updatePosition();
     }
 
+    
+
     private void initializeVisuals(){
         rect=new Rectangle();
         rect.setWidth(BLOCK_WIDTH);
@@ -74,6 +76,14 @@ public class BlockNode extends Pane {
         setPrefWidth(BLOCK_WIDTH);
     }
 
+    public void empty(){
+        List<Note> notesToDelete=block.getAllNotes();
+        for(Note deleting : notesToDelete){
+            block.removeNote(deleting.getStep(), deleting); //delete from the block in model
+        }
+        drawNotes();
+        isEmpty=true; //for appearance
+    }
     private void drawNotes(){
         int range=block.getRange();
         int noteThicknessInPixels=5; //replace with algorithim for calculating thickness based on range later

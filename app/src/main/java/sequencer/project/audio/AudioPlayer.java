@@ -3,6 +3,7 @@ package sequencer.project.audio;
 import java.util.List;
 import java.util.Map;
 
+import sequencer.project.GUI.PlaybackCursor;
 import sequencer.project.model.*;
 
 import java.util.ArrayList;
@@ -18,16 +19,25 @@ public class AudioPlayer {
     private int currentStep = 0;
     private List<ActiveNote> activeNotes = new ArrayList<>();
     private List<ActiveNote> pausedNotes = new ArrayList<>();
+
+    //cursor
+
+    private PlaybackCursor playbackCursor;
     
         
         
     
-    public AudioPlayer(Sequence sequence) {
+    public AudioPlayer(Sequence sequence, AudioEngine audioEngine) {
         this.sequence = sequence;
-        this.audioEngine = new AudioEngine(); // Initialize the mixing engine
+        this.audioEngine=audioEngine; // Initialize the mixing engine
     }
-    
+
+    public void linkPlaybackCursor(PlaybackCursor playbackCursor){
+        this.playbackCursor=playbackCursor;
+    }
+
     public void play() {
+        System.out.println("forreal");
         if (isPlaying) return;
         
         if (!audioEngine.isInitialized()) {
@@ -37,17 +47,19 @@ public class AudioPlayer {
         
         isPlaying = true;
         isPaused = false;
-        currentStep = 0;
+        currentStep = 0;            //???????
         playbackThread = new Thread(this::playbackLoop);
         playbackThread.start();
     }
     
     public void stop() {
-        isPlaying = false;
+        pause();
+        isPlaying=false;
         if (playbackThread != null) {
             playbackThread.interrupt();
         }
         currentStep = 0;
+        playbackCursor.updatePosition(currentStep);
     }
  
     
@@ -106,6 +118,7 @@ public class AudioPlayer {
                 
                 // Move to next step
                 currentStep++;
+                playbackCursor.updatePosition(currentStep);
                 
                 // Wait until it's EXACTLY time for the next step (prevents timing drift)
                 long currentTime = System.nanoTime();

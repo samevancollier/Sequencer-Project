@@ -8,21 +8,20 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import sequencer.project.App;
+import sequencer.project.audio.AudioPlayer;
+import sequencer.project.model.*;
 
 public class GUILauncher extends Application{
     @Override
     public void start(Stage primaryStage) {
-        GUIController gUIController = new GUIController();
+        //get things from model
+        AudioPlayer audioPlayer=App.getAudioPlayer();
+        Sequence sequence=App.getCurrentSequence();
+        GUIController gUIController = new GUIController(audioPlayer);
         // Create the main layout container
         //BorderPane root = new BorderPane();
         //root.setPadding(new Insets(0));
-        
-        // Create placeholder sections with labels
-        TransportControls transportControls = new TransportControls(); //redunaant
-        
-        
-        
-        
         Label gridLabel = new Label("Sequencer Grid");
         gridLabel.setFont(Font.font(16));
         gridLabel.setTextFill(Color.DARKRED);
@@ -32,7 +31,12 @@ public class GUILauncher extends Application{
         // Create the scene and set up the window
         Scene scene = new Scene(gUIController.getRoot(),1200,800);
 
-        gUIController.tests();
+        //initalize theme manager
+
+        
+        
+
+        
         
         // Configure the main window
         primaryStage.setTitle("Desktop Sequencer/Sampler");
@@ -42,6 +46,15 @@ public class GUILauncher extends Application{
         
         // Show the window
         primaryStage.show();
+        
+
+        ThemeManager themeManager=ThemeManager.getInstance();
+        themeManager.setController(gUIController);
+        themeManager.setScene(scene);
+        gUIController.loadStylesheets(scene); //not really clear how works
+
+        
+        gUIController.tests();
        
         System.out.println("Sequencer application started successfully!");
     }

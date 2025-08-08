@@ -3,13 +3,17 @@ package sequencer.project.GUI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import sequencer.project.audio.MusicRoom;
 import sequencer.project.model.InstrumentType;
 
 public class TrackContainer extends ScrollPane {
@@ -32,7 +36,15 @@ public class TrackContainer extends ScrollPane {
     private  List<BlockNode> selectedBlocks=new ArrayList<>();
     private  List<TrackRow> selectedTracks=new ArrayList<>();
 
-    
+    private Pane backgroundNode; //redundant
+
+    private ThemeManager themeManager;
+    private double imageWidth = 0;
+    //playbackCursor STUFF HERE
+
+    private Timeline playbackCursorUpdateTimer;
+    private Pane playbackCursorLayer;
+    private PlaybackCursor playbackCursor;
 
     private int zoom;
 
@@ -40,36 +52,69 @@ public class TrackContainer extends ScrollPane {
     private DoubleProperty masterHScroll=new SimpleDoubleProperty(0.0);
     
     public TrackContainer(GUIController controller){
+        super();
         zoom=1;
         this.controller=controller;
         this.tracks=new ArrayList<>();
         
         
-        initializeContainer();
+        initialiseContainer();
         
-        
+        this.setFocusTraversable(true);
 
+        this.setOnKeyPressed(event->{
+            if(event.getCode()==KeyCode.DELETE){
+                deleteSelectedBlocks();
+                deleteSelectedTracks();
+                deselectAll();
+                event.consume();
+            }
+        });
+        Platform.runLater(() -> {
+            System.out.println("=== TrackContainer Layout Debug ===");
+            System.out.println("TrackContainer width: " + getWidth());
+            System.out.println("TrackContainer height: " + getHeight());
+            System.out.println("Content width: " + getContent().getBoundsInLocal().getWidth());
+            System.out.println("Viewport width: " + getViewportBounds().getWidth());
+            System.out.println("Can scroll horizontally: " + (getContent().getBoundsInLocal().getWidth() > getViewportBounds().getWidth()));
+        });
         
     } 
+    private void initialiseplaybackCursor(){
+        playbackCursorLayer=new Pane();
+        playbackCursorLayer.setMouseTransparent(true);
+        playbackCursorLayer.setPrefWidth(trackVBox.getWidth());
+
+        playbackCursor=new PlaybackCursor(controller.getAudioPlayer(), this);
+
+        playbackCursorLayer.getChildren().add(playbackCursor);
+        /* 
+        //update playbackCursor height when container is resized
+        heightProperty().addListener((obs,oldVal,newVal)->{
+            playbackCursor.updateHeight();
+        });
+        */
+    }
+
 
     
-    private void initializeContainer(){
+    private void initialiseContainer(){
+        
+        setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         // create the main vbox that will hold all tracks
         trackVBox=new VBox();
         trackVBox.setSpacing(0); // minimal spacing between tracks
         trackVBox.setPadding(Insets.EMPTY);
-        trackVBox.setStyle("-fx-background-color: transparent;");
+        trackVBox.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        initialiseplaybackCursor();
 
-        StackPane backgroundPane = new StackPane();
-        backgroundPane.setMinHeight(800);backgroundPane.setMinWidth(800);
-        backgroundPane.setStyle("-fx-background-color: #ffffffff;");                        //BACKGROUND HERE
-        
-        backgroundPane.getChildren().addAll(trackVBox);
+        StackPane mainStackPane=new StackPane();
+        mainStackPane.getChildren().addAll(trackVBox,playbackCursorLayer);
         
         // configure scrollpane
-        setContent(backgroundPane);
+        
         setPadding(Insets.EMPTY);
-        //setStyle(TRACK_CONTAINER_STYLE);
+        
         setFitToWidth(true);
         setFitToHeight(false);
         
@@ -79,7 +124,48 @@ public class TrackContainer extends ScrollPane {
         
         // smooth scrolling
         setPannable(false);
+        setContent(mainStackPane);
+        //setSeamlessBackground("/backgrounds/kitty.jpg"); //filler
+        
     }
+
+    public void updateBackground(String themeName) {
+        String imagePath = "/backgrounds/" + themeName + "_background.jpg";
+        //setSeamlessBackground(imagePath);
+    }
+
+    private void deleteSelectedTracks(){
+        if(selectedTracks.isEmpty()){
+            return;
+        }
+        
+        // create copy
+        List<TrackRow> tracksToDelete=new ArrayList<>(selectedTracks);
+    
+        selectedTracks.clear();
+     
+        for(TrackRow trackRow:tracksToDelete){
+            removeTrack(trackRow.getIndex()); 
+        }
+    }
+    private void deleteSelectedBlocks(){
+        if(selectedBlocks.isEmpty()){
+            return;
+        }
+        
+        // create copy
+        List<BlockNode> blocksToDelete=new ArrayList<>(selectedBlocks);
+    
+        selectedBlocks.clear();
+     
+        for(BlockNode emptying:blocksToDelete){
+            emptying.setSelected(false);
+            emptying.empty();
+        }
+
+        
+    }
+
 
     public void addTrack(String instrumentName, InstrumentType instrumentType){ //inputs will come from dropdown menus ahh
         TrackRow newTrack=new TrackRow(tracks.size(),instrumentName,instrumentType,this);
@@ -93,8 +179,11 @@ public class TrackContainer extends ScrollPane {
         newScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         newScrollPane.hvalueProperty().bindBidirectional(masterHScroll);//bind scroll positions
-        newTrack.getClipArea().drawLines();  
+        updateAllTrackWidths();
+        
+        newTrack.getClipArea().drawLines();  //why doesnt it doo that 
         trackScrollPanes.add(newScrollPane);  
+        playbackCursor.updateHeight();
         
 
     }
@@ -117,11 +206,13 @@ public class TrackContainer extends ScrollPane {
         
         //remove from gui
         trackVBox.getChildren().remove(trackToRemove);
-        
+        //update tha cursor
+        playbackCursor.updateHeight();
         //update track indices for remaining tracks
         for(int i=trackIndex;i<tracks.size();i++){
             tracks.get(i).updateTrackIndex(i);
         }
+
     }
 
     public void updateAllTrackWidths(){
@@ -139,6 +230,7 @@ public class TrackContainer extends ScrollPane {
         for(TrackRow track : tracks){
             track.getClipArea().setUniformWidth(maxBlocks);
         }
+        playbackCursorLayer.setPrefWidth(trackVBox.getWidth());
     }
     
     private void synchronizeScrollPositions(){ //REDUNDANT..
@@ -238,6 +330,57 @@ public class TrackContainer extends ScrollPane {
         }
         updateTrackIndices();
     }
+    /* 
+    private Pane createSeamlessBackground() {
+        Pane scrollingBackground = new Pane();
+        scrollingBackground.getStyleClass().add("scrolling-background");
+        
+        // make background much wider than viewport for smooth scrolling
+        scrollingBackground.setPrefSize(5000, 800);
+        scrollingBackground.setMinSize(5000, 800);
+        scrollingBackground.setMaxSize(5000, 800);
+        
+        return scrollingBackground;
+    }
+
+    private void setupSeamlessScrolling() {
+        hvalueProperty().addListener((obs, oldVal, newVal) -> {
+            if (backgroundNode != null && imageWidth > 0) {
+                double scrollPercent = newVal.doubleValue();
+                
+                // calculate total scrollable distance
+                double totalScrollDistance = backgroundNode.getPrefWidth() - getWidth();
+                double currentScrollPosition = scrollPercent * totalScrollDistance;
+                
+                // loop the background position
+                double seamlessOffset = currentScrollPosition % imageWidth;
+                
+                // update background position creates loop
+                backgroundNode.setStyle(
+                    backgroundNode.getStyle().replaceAll("-fx-background-position:[^;]*;?", "") +
+                    String.format("-fx-background-position: -%fpx center;", seamlessOffset)
+                );
+            }
+        });
+    }
+
+    */
+
+    public void loadCurrentThemeImageWidth() {
+        if (themeManager != null) {
+            try {
+                String imagePath = themeManager.getCurrentBackgroundImagePath();
+                if (imagePath != null) {
+                    Image img = new Image(getClass().getResourceAsStream(imagePath));
+                    imageWidth = img.getWidth();
+                    System.out.println("Loaded image width: " + imageWidth);
+                }
+            } catch (Exception e) {
+                System.err.println("Could not load image" + e.getMessage());
+                imageWidth = 1920; // Fallback
+            }
+        }
+    }
     
     private void updateTrackIndices() {
         for (int i = 0; i < tracks.size(); i++) {
@@ -249,5 +392,10 @@ public class TrackContainer extends ScrollPane {
     public TrackRow getTrackRow(int trackIndex){return tracks.get(trackIndex);}
     public List<BlockNode> getSelectedBlocks(){return selectedBlocks;}
     public List<TrackRow> getSelectedTracks(){return selectedTracks;}
-   public boolean isTrackSelected(TrackRow trackRow) {return selectedTracks.contains(trackRow);}
+    public boolean isTrackSelected(TrackRow trackRow) {return selectedTracks.contains(trackRow);}
+    public DoubleProperty getMasterHScroll(){return masterHScroll;}
+    public GUIController getController(){return controller;}
+    public VBox getVBox(){return trackVBox;}
+    public int getNumOfTracks(){return tracks.size();}
+    public PlaybackCursor getPlaybackCursor(){return playbackCursor;}
 }

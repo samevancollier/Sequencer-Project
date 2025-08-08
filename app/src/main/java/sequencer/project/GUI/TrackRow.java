@@ -20,8 +20,8 @@ public class TrackRow extends HBox {
     private TrackContainer parentContainer;
     
     private TrackControl trackControl;
-    private ClipArea clipArea=new ClipArea(this); //fuuuuuck this
-    private ScrollPane clipAreaScrollPane=new ScrollPane(clipArea);
+    private ClipArea clipArea; //fuuuuuck this
+    private ScrollPane clipAreaScrollPane;
     private FXArea fxArea;
 
     //STUFF ASSOCIATED WITH BACKEND
@@ -52,14 +52,17 @@ public class TrackRow extends HBox {
         "-fx-border-width: 1px;";
 
     public TrackRow(int trackIndex, String trackName, InstrumentType trackType, TrackContainer parentContainer){
+        this.parentContainer=parentContainer;
         this.trackIndex=trackIndex;
         this.trackName =trackName;
         this.trackType=trackType;
-        this.parentContainer=parentContainer;
+        
+        
         this.trackColour=TRACK_COLOURS[trackIndex];
         this.isSelected=false;
         this.track=new Track(trackName, trackIndex);
-        
+        this.clipArea=new ClipArea(this); 
+        this.clipAreaScrollPane=new ScrollPane(clipArea);
         initializeLayout();
         //setupMouseHandlers(); //do later
     } 
@@ -80,6 +83,7 @@ public class TrackRow extends HBox {
         clipAreaScrollPane.setFitToWidth(false); // important! let it scroll horizontally
         clipAreaScrollPane.setPannable(false);
         clipAreaScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        clipArea.drawLines();
         HBox.setHgrow(clipAreaScrollPane, Priority.ALWAYS); // expand to fill space
         
         //FX AREA

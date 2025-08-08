@@ -1,0 +1,72 @@
+/* terraria theme - earthy browns and golds */
+.main-pane{
+    -fx-background-image:url("/backgrounds/terraria_background.jpg");
+    -fx-background-size:cover;
+    -fx-background-repeat:no-repeat;
+}
+
+/* top control bar buttons */
+.top-control-button{
+    -fx-background-color:#8B4513;
+    -fx-text-fill:#F4A460;
+    -fx-font-weight:bold;
+    -fx-background-radius:3px;
+    -fx-border-radius:3px;
+    -fx-border-color:#654321;
+    -fx-border-width:2px;
+}
+
+.top-control-button:hover{
+    -fx-background-color:#A0522D;
+}
+
+.top-control-button:pressed{
+    -fx-background-color:#654321;
+}
+
+/* menu buttons */
+.top-control-menu-button{
+    -fx-background-color:#8B4513;
+    -fx-text-fill:#F4A460;
+    -fx-font-weight:bold;
+    -fx-background-radius:3px;
+    -fx-border-radius:3px;
+    -fx-border-color:#654321;
+    -fx-border-width:2px;
+}
+
+.top-control-menu-button:hover{
+    -fx-background-color:#A0522D;
+}
+
+/* button labels */
+.top-control-label{
+    -fx-background-color:#8B4513;
+    -fx-text-fill:#F4A460;
+    -fx-font-weight:bold;
+    -fx-background-radius:3px;
+    -fx-border-radius:3px;
+    -fx-border-color:#654321;
+    -fx-border-width:2px;
+}
+
+/* specific button styling */
+.play-button{
+    -fx-background-color:#228B22;
+    -fx-border-color:#006400;
+    -fx-text-fill:#90EE90;
+}
+
+.play-button:hover{
+    -fx-background-color:#32CD32;
+}
+
+.stop-button{
+    -fx-background-color:#B22222;
+    -fx-border-color:#8B0000;
+    -fx-text-fill:#FFB6C1;
+}
+
+.stop-button:hover{
+    -fx-background-color:#DC143C;
+}

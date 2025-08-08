@@ -273,7 +273,7 @@ public class AudioEngine {
             
         } catch (UnsupportedAudioFileException | IOException e) {
             // If conversion fails, print error and return original data
-            System.err.println("Error converting audio format: " + e.getMessage());
+            //System.err.println("Error converting audio format: " + e.getMessage());
             return inputData; // Hope the original data works anyway
         }
     }

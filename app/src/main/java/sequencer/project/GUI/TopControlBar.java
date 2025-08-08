@@ -1,5 +1,6 @@
 package sequencer.project.GUI;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
+import sequencer.project.audio.AudioPlayer;
 import sequencer.project.model.InstrumentType;
 
 public class TopControlBar extends HBox{
@@ -22,14 +24,16 @@ public class TopControlBar extends HBox{
     
     // project controls
     private Button folderButton;
-    private Button paintbrushButton;
+    private MenuButton themeButton;
     private Button settingsButton;
     private Button playButton;
     private Button pauseButton;
     private Button stopButton;
     private MenuButton addTrackButton;
 
-   
+    //backend
+
+    private AudioPlayer audioPlayer;
     // project name
     private TextField projectNameField;
     
@@ -46,12 +50,14 @@ public class TopControlBar extends HBox{
         setupLayout();
         setupEventHandlers();
         this.setPrefHeight(50);
+
+        this.audioPlayer=controller.getAudioPlayer();
     }
     
     private void initializeComponents(){
         // project control buttons
         folderButton=new Button("FOLDER");
-        paintbrushButton=new Button("PAINTBRUSH");
+        themeButton=new MenuButton("PAINTBRUSH");
         settingsButton=new Button("SETTINGS");
         playButton=new Button("▶");
         pauseButton=new Button("⏸");
@@ -76,7 +82,7 @@ public class TopControlBar extends HBox{
         
         // style the project buttons
         styleButton(folderButton);
-        styleButton(paintbrushButton);
+        styleMenuButton(themeButton);
         styleButton(settingsButton);
         styleButton(playButton);
         styleButton(pauseButton);
@@ -88,7 +94,7 @@ public class TopControlBar extends HBox{
         //set up buttons
 
         setUpAddTrackButton();
-        
+        setUpThemeButton();
         // style project name field
         projectNameField.setStyle("-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-border-color: #555; -fx-border-radius: 3; -fx-background-radius: 3;");
         
@@ -108,7 +114,7 @@ public class TopControlBar extends HBox{
         // add all components to the hbox
         this.getChildren().addAll(
             folderButton,
-            paintbrushButton, 
+            themeButton, 
             settingsButton,
             projectNameField,
             playButton,pauseButton,stopButton,addTrackButton,
@@ -122,25 +128,27 @@ public class TopControlBar extends HBox{
             // show file menu for save/open/new
         });
         
-        paintbrushButton.setOnAction(e->{
-            System.out.println("paintbrush button clicked");
-            // show skin selection
+        playButton.setOnAction(e->{
+            if(audioPlayer.isPaused()){
+                audioPlayer.resume();
+            } else {
+                audioPlayer.play();
+            }
+            
+            //System.out.println("wtf");
+            //System.out.println(controller.getAudioPlayer()==null ? "null" : "not null");
         });
         
         settingsButton.setOnAction(e->{
             System.out.println("settings button clicked");
             // show settings dialog
         });
-        playButton.setOnAction(e->{
-            System.out.println("playing");
-
-        });
+        
         pauseButton.setOnAction(e->{
-            System.out.println("paused");
-       
+            audioPlayer.pause();
         });
         stopButton.setOnAction(e->{
-            System.out.println("stop");
+            audioPlayer.stop();
         });
         
         addTrackButton.setOnAction(e->{
@@ -174,16 +182,24 @@ public class TopControlBar extends HBox{
             }
         }
     }
+    private void setUpThemeButton(){
+        ArrayList<String> themes=ThemeManager.getInstance().getThemes();
+        for(String i : themes){
+            MenuItem menuItem=new MenuItem(i);
+            menuItem.setOnAction(e->ThemeManager.getInstance().setTheme(i));
+            themeButton.getItems().add(menuItem);
+        }
+    }
     private void styleButton(Button button){
         button.setMinWidth(50); button.setMaxWidth(50);
         button.setMinHeight(50); button.setMaxHeight(50);
         button.setPrefHeight(50);button.setPrefWidth(50);
         button.setFont(Font.font(16));
-        button.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 0; -fx-background-radius: 0;");
-        
-        // hover effect
-        button.setOnMouseEntered(e->button.setStyle("-fx-background-color: #5a5a5a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 3; -fx-background-radius: 3;"));
-        button.setOnMouseExited(e->button.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 3; -fx-background-radius: 3;"));
+        button.getStyleClass().clear();
+        button.getStyleClass().addAll("top-control-button");
+        button.applyCss();
+        System.out.println("Button " + button.getText() + " classes: " + button.getStyleClass());
+        System.out.println("Button " + button.getText() + " computed style: " + button.getStyle());
     }
 
     private void styleMenuButton(MenuButton button){
@@ -206,12 +222,28 @@ public class TopControlBar extends HBox{
         label.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 0; -fx-background-radius: 0;");
     }
 
+    public void reapplyStyles(){
+    // apply CSS classes to force them to pick up the new stylesheet
+        styleButton(folderButton);
+        styleMenuButton(themeButton);
+        styleButton(settingsButton);
+        styleButton(playButton);
+        styleButton(pauseButton);
+        styleButton(stopButton);
+        styleMenuButton(addTrackButton);
+        styleAsButton(timeSignatureLabel);
+        styleAsButton(bPMLabel);
+        
+        System.out.println("Reapplied styles to all buttons");
+    }
     
     
     // getter for the controller to add this to layout
     public HBox getNode(){
         return this;
     }
+
+    public Button getPlayButton(){return playButton;}
     
   
     // method to get project name

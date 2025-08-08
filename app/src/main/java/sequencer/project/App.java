@@ -15,17 +15,19 @@ import sequencer.project.GUI.*;
 //remove block by dragging left                                                                                         :)
 //removing block preview                                                                                            :)
 //playback cursor :0
-//fix the overall track width being kind of weird
+//fix the overall track width being kind of weird/snappy
 //make trackcontainer big, but empty...                                                         :)
 //differentiating visually between empty blocks and not empty blocks (opacity)
+//play pause and stop buttons actually do something                                     :)
 //fix the weird scrolling up inside track thing
 //colour behaivour, colour enum
 //zooming in and out :O
-//add create track button
-//delete tracks with keyboard
+//add create track button and make it work              :)
+//delete tracks with keyboard                                   :)
 //hotkeys for various things
 //copy/paste functionality
 //backgrounds                                                                                               :)
+//start using CSS                                       :)
 //opaque track controls                                                 :)
 //fix various weird misalignments
 //refactor Track to use Block objects
@@ -34,43 +36,42 @@ import sequencer.project.GUI.*;
 //FX area functionality
 //support empty space? 
 //hovering over block swaps blocks visually
+//implement theme manager                               :)
 //clicking all empty space deselects selection
-//fix weird ghost track at bottom
-//FIX weird behaivour after track 5????
+//fix weird ghost track at bottom                                                                   :)
+//FIX weird behaivour after track 5????                                                                     :)
 //fix WEIRD paleness of transport controls sometimes??? after draggiog
+//fix weird transparency of transport controls sometimes
+//FIX weird selection/emptying/deletion of first selected block...                          :)
+//fix weird scollpane behaivour
+//FIX background scrolling behaivour            :)
+//fix jumpy background at far edge                  :)
+//collapsible track rows
+
+//pressing stop button while playing spazzes out                :)
+
+
 public class App {
+    private static AudioEngine audioEngine;
+    private static AudioPlayer audioPlayer;
+    private static Sequence currentSequence;
     public static void main(String[] args) {
-        System.out.println("Testing enum...");
-        System.out.println(InstrumentType.DRUMS);
-        System.out.println(InstrumentType.TEENAGE_DRUMS);
-        System.out.println("Enum works!");
-    
-        System.out.println("Starting sequencer with mixing engine...");
         
+
+        currentSequence=new Sequence();
+        audioEngine=new AudioEngine();
+        audioPlayer=new AudioPlayer(currentSequence,audioEngine);
         
-        Sequence mySequence = new Sequence();
-        AudioPlayer audioPlayer = new AudioPlayer(mySequence);
-        Application.launch(sequencer.project.GUI.GUILauncher.class, args);
  
 
         
-        // Wait for audio engine to initialize
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
         
-        if (!audioPlayer.getAudioEngine().isInitialized()) {
-            System.err.println("Audio engine failed to initialize!");
-            return;
-        }
-        /* 
-        mySequence.addTrack("Teenage Drums"); mySequence.addTrack("Square");
-        Track myTrack = mySequence.getTrack(0); Track myTrack2 = mySequence.getTrack(1);
+        
+        currentSequence.addTrack("Teenage Drums"); currentSequence.addTrack("Square");
+        Track myTrack = currentSequence.getTrack(0); Track myTrack2 = currentSequence.getTrack(1);
         System.out.println("Track number: " + myTrack.getTrackNumber());
         
-        for(int i = 0; i<63; i++){
+        for(int i = 0; i<2000; i++){
             myTrack.addNote(i, 60, 127, 1);
             if(i%4==0){
                 myTrack.addNote(i, 62, 127, 1);
@@ -86,8 +87,9 @@ public class App {
                 myTrack2.addNote(i, 63, 127, 1);
             }
         }
-        
-        
+
+        Application.launch(sequencer.project.GUI.GUILauncher.class, args);
+        /* 
         try {
             audioPlayer.play();
             Thread.sleep(10000);
@@ -111,30 +113,17 @@ public class App {
         myTrack2.addFX(bitcrushr, 0);
         myTrack.addFX(bitcrushr, 0);
         */
-        audioPlayer.play();
-        System.out.println("Starting playback...");
+        //audioPlayer.play();
+        //System.out.println("Starting playback...");
         
         
-        // wait for playback to finish
-        while (audioPlayer.isPlaying()) {
-            try {
-                Thread.sleep(100);
-
-                if (audioPlayer.getAudioEngine() instanceof AudioEngine) {
-                    //Engine mixingEngine = (AudioEngine) audioPlayer.getAudioEngine();
-                    //System.out.println("Active samples: " + mixingEngine.getActiveSampleCount());
-                }
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
+        
             
         
-        System.out.println("Playback finished. Shutting down...");
-        audioPlayer.shutdown();
+        
 
-        /* mySequence.addTrack("Teenage Drums");
-        Track myTrack = mySequence.getTrack(0);
+        /* currentSequence.addTrack("Teenage Drums");
+        Track myTrack = currentSequence.getTrack(0);
         System.out.println(myTrack.getTrackNumber());
         myTrack.addNote(0, 60, 0, 1);
         myTrack.addNote(1, 60, 0, 1);
@@ -153,5 +142,8 @@ public class App {
     */
         System.out.println("done");
     }
+    public static AudioEngine getAudioEngine(){ return audioEngine; }
+    public static AudioPlayer getAudioPlayer(){ return audioPlayer; }
+    public static Sequence getCurrentSequence(){ return currentSequence; }
 }
 

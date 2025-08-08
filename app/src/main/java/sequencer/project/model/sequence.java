@@ -19,11 +19,11 @@ public class Sequence {
     
     public Sequence(){ //i really dont like passing this in all over the place, oh well
         this.tracks = new ArrayList<>();
-        this.bPM = 20;
+        this.bPM = 200;
         this.timeSignature = 44;
         this.musicRoom = MusicRoom.getInstance();
         this.currentStep = 0;
-        this.length=100;
+        this.length=4000; //HERE
     }
 
     public void addTrack(String chosenInstrument){

@@ -17,6 +17,7 @@ public class ClipArea extends Pane {
     private List<Block> blocks=new ArrayList<Block>(); //BLOCKS
     private BlockNode selectedBlock;
     private TrackContainer trackContainer;
+    private Background background;
 
     private Rectangle newBlockPreview;
     private List<Rectangle> previewRectangles=new ArrayList<>(); 
@@ -36,7 +37,7 @@ public class ClipArea extends Pane {
     private List<Line> lines;
     
 
-    private int extraSpace=500;
+    private int extraSpace=4000;
     
     
     public ClipArea(TrackRow trackRow){
@@ -46,10 +47,13 @@ public class ClipArea extends Pane {
         this.lines=new ArrayList<>();
         this.trackContainer=trackRow.getContainer();
         this.colour=trackRow.getColour();
+        this.background=trackRow.getContainer().getController().getBackground();
         
         initializeCanvas(); 
         setupMouseHandlers();
         refreshBlocks();
+
+        
         
     }
     
@@ -81,17 +85,18 @@ public class ClipArea extends Pane {
     public void drawLines(){
         getChildren().removeAll(lines);
         lines.clear();
-        for(int i=50;i<totalWidth;i+=50){
+        System.out.println("total width:" + totalWidth);
+        for(int i=50;i<totalWidth;i+=50){                                  
             if(!(i%200==0)){
                 Line newLine=new Line(i,0,i,CLIP_HEIGHT);
-                newLine.setStroke(Color.web("#00ff08ff"));
+                newLine.setStroke(Color.web("#b2b2b2ff"));
                 newLine.setStrokeWidth(1.0);
                 lines.add(newLine);
                 getChildren().add(newLine);
                 continue;
             }
             Line newBlockLine=new Line(i,0,i,CLIP_HEIGHT);
-            newBlockLine.setStroke(Color.web("#081309ff"));
+            newBlockLine.setStroke(Color.web("#868686ff"));
             newBlockLine.setStrokeWidth(1.0);
             lines.add(newBlockLine);
             getChildren().add(newBlockLine);
@@ -164,7 +169,7 @@ public class ClipArea extends Pane {
         getChildren().add(newBlockNode);
 
         trackRow.getContainer().updateAllTrackWidths();
-        setWidth(barWidthInPixels*blocks.size()+500);
+        setWidth(barWidthInPixels*blocks.size()+extraSpace);
         refreshBlocks();
         drawLines();
     }
@@ -186,14 +191,14 @@ public class ClipArea extends Pane {
     
     public void setUniformWidth(int totalBlocks){//FIX THE WEIRD SNAPPING DUE TO WIDTH BEING SHRUNKEN WHEN BLOCKS ARE REMOVED
         
-        double newWidth=((barWidthInPixels*totalBlocks)+2000);
-        System.out.println("Setting width to: "+newWidth+" (totalBlocks: "+totalBlocks+")");
+        double newWidth=((barWidthInPixels*totalBlocks)+extraSpace);
+        //System.out.println("Setting width to: "+newWidth+" (totalBlocks: "+totalBlocks+")");
         this.totalWidth=newWidth;
         setWidth(newWidth);
         setPrefWidth(newWidth);
         setMinWidth(newWidth);
         setMaxWidth(newWidth);
-        System.out.println("New width is: "+getWidth());
+        //System.out.println("New width is: "+getWidth());
         
         refreshBlocks();
         drawLines();
@@ -274,6 +279,8 @@ public class ClipArea extends Pane {
         previewRectangles.clear();
         System.out.println("hiding preview"); 
     }
+
+    
     /* 
     public void setStepWidth(double stepWidth){
         this.stepWidth=stepWidth;
