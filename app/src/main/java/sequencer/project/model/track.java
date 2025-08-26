@@ -40,7 +40,7 @@ public class Track {
             for(int i=step;i<step+length;i++){
                 blockedNotes.computeIfAbsent(pitch, k -> new ArrayList<>()).add(i);
             }
-            System.out.println("note added.");
+            //System.out.println("note added.");
         }
     }
     //remove notes

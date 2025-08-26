@@ -75,7 +75,7 @@ public class GUIController {
 
         ThemeManager.getInstance().setTheme("sonic");  
 
-        ThemeManager.getInstance().setTheme("terraria");  
+        ThemeManager.getInstance().setTheme("ascii");  
     }
 
     private void initializeComponents(){
@@ -103,22 +103,17 @@ public class GUIController {
         VBox.setVgrow(trackContainer, Priority.ALWAYS);
         
         // placeholder for piano roll area
-        VBox pianoRollPlaceholder=new VBox();
-        pianoRollPlaceholder.getChildren().add(new Label("piano roll area (coming soon)"));
-        pianoRollPlaceholder.setStyle(
-            "-fx-background-color: rgba(0,0,0,0.1);" +
-            "-fx-background: null; " +
-            "-fx-padding: 10;"
-        );
+        PianoRoll pianoRoll=new PianoRoll();
+        
 
         Pane testPane = new Pane();
         testPane.setPrefHeight(200);
 
-        pianoRollPlaceholder.setPrefHeight(200);
+        pianoRoll.setPrefHeight(200);
         
         SplitPane mainSplitPane = new SplitPane();
         mainSplitPane.setOrientation(Orientation.VERTICAL);
-        mainSplitPane.getItems().addAll(top, pianoRollPlaceholder);
+        mainSplitPane.getItems().addAll(top, pianoRoll);
         mainSplitPane.setDividerPositions(0.8);
         
         mainSplitPane.setStyle(
@@ -129,14 +124,21 @@ public class GUIController {
         );
         top.setStyle("-fx-background-color: transparent; -fx-background: transparent");
         
-        SplitPane.setResizableWithParent(pianoRollPlaceholder, true);
+        SplitPane.setResizableWithParent(pianoRoll, true);
         SplitPane.setResizableWithParent(top, true);
         
         root.setStyle("-fx-background-color: transparent;");
         //root.setCenter(mainSplitPane);
         root.getChildren().addAll(background,mainSplitPane);
-        
-        //tests
+
+        //init ttack SHOULD BE AN EMPTY TRACK doesnt really matter 
+
+        trackContainer.addTrack("Square", InstrumentType.SYNTH);
+        TrackRow track0=trackContainer.getTrackRow(0);
+        track0.getClipArea().createBlock();
+        BlockNode firstBlock=track0.getClipArea().getSpecificBlockNode(0);
+        pianoRoll.setOpenBlock(firstBlock);
+
     }
 
     private void bindScrollPositions(TrackContainer container){

@@ -1,0 +1,57 @@
+{
+  "font": "font.ttf",
+  "images": {
+    "playButton": "play.png",
+    "pauseButton": "pause.png",
+    "stopButton": "stop.png",
+    "folderButton": "folder.png",
+    "paintbrushButton": "paintbrush.png",
+    "muteButton": "mute.png",
+    "soloButton": "solo.png",
+    "settingsButton": "settings.png",
+    "keyboardSprite": "keyboard.png",
+    "drumsSprite": "drums.png"
+  },
+  "trackColors": [
+    {
+      "base": "#000000",
+      "highlight": "#333333",
+      "selected": "#555555"
+    },
+    {
+      "base": "#1a1a1a",
+      "highlight": "#404040",
+      "selected": "#666666"
+    },
+    {
+      "base": "#2d2d2d",
+      "highlight": "#4d4d4d",
+      "selected": "#777777"
+    },
+    {
+      "base": "#404040",
+      "highlight": "#606060",
+      "selected": "#888888"
+    },
+    {
+      "base": "#555555",
+      "highlight": "#757575",
+      "selected": "#999999"
+    }
+  ],
+  "backgroundImage": "background.png",
+  "colors": {
+    "trackLines": "#333333",
+    "notes": {
+      "base": "#ffffff",
+      "highlight": "#cccccc",
+      "selected": "#ffff00"
+    },
+    "selectedNotes": "#ffff00"
+  },
+  "pianoRollBackgrounds": {
+    "bars13": "pianoroll_bars13.png",
+    "bars24": "pianoroll_bars24.png"
+  },
+  "defaultOpacity": 0.8
+}

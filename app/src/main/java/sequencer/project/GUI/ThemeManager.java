@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import sequencer.project.audio.MusicRoom;
 
 public class ThemeManager {
@@ -36,12 +37,13 @@ public class ThemeManager {
        
         this.themes = new HashMap<>();
         initializeThemes();
-        currentTheme="terraria";
+        currentTheme="sonic";
     }
     
     private void initializeThemes() { //make it do this automatixally
         themes.put("sonic", new ThemeConfig("sonic.css"));
         themes.put("terraria", new ThemeConfig("terraria.css"));
+        themes.put("ascii", new ThemeConfig("ascii.css"));
        
     }
     public void setTrackContainer(TrackContainer trackContainer) {
@@ -86,6 +88,7 @@ public class ThemeManager {
         ArrayList<String> themeList=new ArrayList<String>(themes.keySet());
         return themeList;
     }
+
     
 
     public void setController(GUIController controoler){this.controller=controoler;}
@@ -102,7 +105,8 @@ public class ThemeManager {
             this.backgroundImagePath=getBackgroundImagePath();
         }
         public String getBackgroundImagePath() {
-            return "/backgrounds/" + getThemeName() + "_background.jpg";
+            
+            return "/backgrounds/" + getThemeName() + "_background.png";
         }
         public String getThemeName() {
             return cssFile.substring(0, cssFile.lastIndexOf('.'));

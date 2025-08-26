@@ -6,6 +6,7 @@ package sequencer.project;
 import sequencer.project.audio.*;
 import sequencer.project.model.*;
 import javafx.application.Application;
+import javafx.scene.shape.Rectangle;
 import sequencer.project.GUI.*;
 
 //to do
@@ -47,9 +48,66 @@ import sequencer.project.GUI.*;
 //FIX background scrolling behaivour            :)
 //fix jumpy background at far edge                  :)
 //collapsible track rows
+//playback cursor                                       :)
+//fix disappearing playback cursor      :)
+//FIX cursor disapparing too early/position slightly wrong probably because of weird padding somewhere              :)
+//make playback cursor prettier
+//set playback cursor with mouse click  :)
+//FIX clicking inside blocks still sets position if it is not on the header
+//Selecting block will change playback position
+//fix sometimes play has to be clicked twice for some reason                
+//fix crashing to do with playback cursor (happend once)
+//fix cursor being set slightly offset from click position (to do with width somehow)               :)
+//fix cursor not catching up                                                                                                :)
+//fix not being able to  set custom playback pos until played at least once             :)
+//fix clicks becoming increasingly innaccurate deeper into the track                    :)
 
 //pressing stop button while playing spazzes out                :)
 
+//FIX ugly horizontal lines in pianoroll: create drawHorizontalLines method probably
+//big fix fix the piano roll behauvour when resizing window horizontally
+//fix the piano roll gridpane being slightly too long for no fucking reason...
+//FIX backgrounds of piano roll being redrawn on resolution change          :)
+//actually be able to draw in notes lol                                 :)
+
+//play notes on keyboard
+
+//drag notes, extend notes, delete nontes TOTALLY TWEAKED RN            :)
+//notes correspond to actual blocks
+//create sample instruments
+//ascii and default themes
+//note drawing algo for blocks
+
+//greyed out keys where no sample exists
+//play the keyboard!
+
+//FIX quantisation piano rollresizing resolution issue
+
+//fix theme manager to use json as css actually retarded 
+//make notes not horrible looking
+//highlight notes to be deleted
+//drag box to select notes                                          :)
+//double click to add notes (fix bubbling issue)                    :)
+//delete notes with keys                                            :)
+//move notes with keys                                              :)
+//FIX horrendous piano roll bugs                                            :)
+//notes after being resized when selected sometimes do not change colour?       :)
+//notes which have been moved can no longer seemingly be deleted or moved again lol         :)
+//note quantization when moving issue (is it actually an issue)
+//fix notes not being deleted off edge                              :)
+
+//drag multiple notes around                                                                :)
+//drag selection without holding shift
+//fix behaivour of dragged notes at edges (edge should act like a wall)
+//fix piano roll scrolling with key movement
+//fix selections no longer move with key presses after resolution change 
+
+//MAKE SURE model is being updated correctly
+
+//make sure the track container is requesting focus if neccesary
+
+//today:
+//
 
 public class App {
     private static AudioEngine audioEngine;
@@ -145,5 +203,7 @@ public class App {
     public static AudioEngine getAudioEngine(){ return audioEngine; }
     public static AudioPlayer getAudioPlayer(){ return audioPlayer; }
     public static Sequence getCurrentSequence(){ return currentSequence; }
+
+    
 }
 

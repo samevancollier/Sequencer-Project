@@ -276,10 +276,16 @@ public class BlockNode extends Pane {
             rect.setStrokeWidth(1);
         }
     }
-    public void addNote(int step, int pitch, int velocity, int length){
+    public void addNote(int step, int pitch, int velocity, int length){ //stupid, dont use anymore
         block.addNote(step, pitch, velocity, length);
         drawNotes(); // UI handles its own refresh
     }
+
+    public void addNote(Note newNote){ 
+        block.addNote(newNote);
+        drawNotes(); // UI handles its own refresh
+    }
+
 
     public void removeNote(Note noteToRemove){
         block.removeNote(noteToRemove.getStep(),noteToRemove); //weird

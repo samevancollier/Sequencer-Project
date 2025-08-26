@@ -1,6 +1,6 @@
 /* terraria theme - earthy browns and golds */
 .main-pane{
-    -fx-background-image:url("/backgrounds/terraria_background.jpg");
+    -fx-background-image:url("/backgrounds/terraria_background.png");
     -fx-background-size:cover;
     -fx-background-repeat:no-repeat;
 }

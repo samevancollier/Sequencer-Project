@@ -1,0 +1,70 @@
+/* sonic theme - direct paths, no css variables */
+.main-pane{
+    -fx-background-image:url("/backgrounds/ascii_background.png");
+    -fx-background-size:cover;
+    -fx-background-repeat:no-repeat;
+}
+
+/* top control bar buttons */
+.top-control-button{
+    -fx-background-color:#0066FF;
+    -fx-text-fill:white;
+    -fx-font-weight:bold;
+    -fx-background-radius:3px;
+    -fx-border-radius:3px;
+    -fx-border-color:#004499;
+    -fx-border-width:2px;
+}
+
+.top-control-button:hover{
+    -fx-background-color:#0088FF;
+}
+
+.top-control-button:pressed{
+    -fx-background-color:#004499;
+}
+
+/* menu buttons */
+.top-control-menu-button{
+    -fx-background-color:#0066FF;
+    -fx-text-fill:white;
+    -fx-font-weight:bold;
+    -fx-background-radius:3px;
+    -fx-border-radius:3px;
+    -fx-border-color:#004499;
+    -fx-border-width:2px;
+}
+
+.top-control-menu-button:hover{
+    -fx-background-color:#0088FF;
+}
+
+/* button labels */
+.top-control-label{
+    -fx-background-color:#0066FF;
+    -fx-text-fill:white;
+    -fx-font-weight:bold;
+    -fx-background-radius:3px;
+    -fx-border-radius:3px;
+    -fx-border-color:#004499;
+    -fx-border-width:2px;
+}
+
+/* specific button styling */
+.play-button{
+    -fx-background-color:#00AA00;
+    -fx-border-color:#008800;
+}
+
+.play-button:hover{
+    -fx-background-color:#00CC00;
+}
+
+.stop-button{
+    -fx-background-color:#CC0000;
+    -fx-border-color:#AA0000;
+}
+
+.stop-button:hover{
+    -fx-background-color:#FF0000;
+}

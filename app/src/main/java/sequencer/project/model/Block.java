@@ -25,11 +25,11 @@ public class Block {
         this.notes=new HashMap<>(); //initialize the map
     }
     
-    public void addNote(int step, int pitch, int velocity, int length){
+    public void addNote(int step, int pitch, int velocity, int length){                         //STUPID DONT USE ANYMORE
         if(blockedNotes.containsKey(pitch)&&blockedNotes.get(pitch).contains(step)){
-            System.out.println("no");
+            System.out.println("blocked note");
         } else {
-            Note newNote=new Note(pitch, step, length, track);
+            Note newNote=new Note(pitch, step, length, track);//track stuff will be a probklem
             if(pitch>highestNote){
                 highestNote=pitch;
             }
@@ -44,8 +44,26 @@ public class Block {
             
         }
     }
+
+    public void addNote(Note newNote){
+        int step=newNote.getStep();
+        int pitch=newNote.getPitch();
+        if(pitch>highestNote){
+            highestNote=pitch;
+        }
+        if(pitch<lowestNote){
+            lowestNote=pitch;
+        }
+        notes.computeIfAbsent(newNote.getStep(), k->new ArrayList<>()).add(newNote);
+        for(int i=step;i<step+newNote.getLength();i++){                                         //likely not neccesary anymore
+            blockedNotes.computeIfAbsent(pitch, k->new ArrayList<>()).add(i);
+        }
+        System.out.println("note added:" + step + " " + pitch + " " + newNote.getLength());
+    }
+    
     
     public void removeNote(int step, Note note){ //weird
+        System.out.println("removing note:" + step);
         List<Note> stepNotes=notes.get(step);
         if(stepNotes!=null){
             stepNotes.remove(note);

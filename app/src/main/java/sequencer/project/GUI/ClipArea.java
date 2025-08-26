@@ -18,6 +18,7 @@ public class ClipArea extends Pane {
     private BlockNode selectedBlock;
     private TrackContainer trackContainer;
     private Background background;
+    private GUIController controller;
 
     private Rectangle newBlockPreview;
     private List<Rectangle> previewRectangles=new ArrayList<>(); 
@@ -48,6 +49,7 @@ public class ClipArea extends Pane {
         this.trackContainer=trackRow.getContainer();
         this.colour=trackRow.getColour();
         this.background=trackRow.getContainer().getController().getBackground();
+        this.controller=trackContainer.getController();
         
         initializeCanvas(); 
         setupMouseHandlers();
@@ -81,7 +83,39 @@ public class ClipArea extends Pane {
         if(e.getTarget()==this){
             trackRow.getContainer().deselectAll();
         }
+        if(!controller.getAudioPlayer().isPlaying() || controller.getAudioPlayer().isPaused()){
+            // convert click X position to step
+            double scrollOffset = trackContainer.getHvalue() * (trackContainer.getContent().getBoundsInLocal().getWidth() - trackContainer.getViewportBounds().getWidth());
+            double clickX=e.getX()+trackContainer.getMasterHScroll().get(); // FAILED TO FIX THE INCREASING INNACCURACY!
+            int step=(int)(clickX/(50.0/64.0)); // reverse your cursor position calculation
+            controller.getAudioPlayer().play();controller.getAudioPlayer().pause(); //clumsy way to do that
+            // set playback position
+            controller.getAudioPlayer().setPlaybackPoint(step); // or whatever method sets position
+            
+            
+            // update cursor visual
+            trackContainer.getPlaybackCursor().updatePosition(step);
+            
+            
+        }
+        e.consume();
     }
+
+    public void setUniformWidth(int totalBlocks){//FIX THE WEIRD SNAPPING DUE TO WIDTH BEING SHRUNKEN WHEN BLOCKS ARE REMOVED
+        
+        double newWidth=((barWidthInPixels*totalBlocks)+extraSpace);
+        //System.out.println("Setting width to: "+newWidth+" (totalBlocks: "+totalBlocks+")");
+        this.totalWidth=newWidth;
+        setWidth(newWidth);
+        setPrefWidth(newWidth);
+        setMinWidth(newWidth);
+        setMaxWidth(newWidth);
+        //System.out.println("New width is: "+getWidth());
+        
+        refreshBlocks();
+        drawLines();
+    }
+    
     public void drawLines(){
         getChildren().removeAll(lines);
         lines.clear();
@@ -103,12 +137,13 @@ public class ClipArea extends Pane {
         }
     }
     
-    public void refreshBlocks(){
+    public void refreshBlocks(){          //forgot what is used for
         // remove all existing block nodes
         for(BlockNode node:blockNodes){
             node.refresh();
         }
     }
+
     public void moveBlockToPosition(BlockNode draggedNode, int fromIndex, int toIndex) {
         if(fromIndex == toIndex) return;
         
@@ -141,7 +176,7 @@ public class ClipArea extends Pane {
 
     
     
-    public void blockMoved(BlockNode blockNode,int newStep){
+    public void blockMoved(BlockNode blockNode,int newStep){    //not currently used
         // this is called when a block finishes being dragged
         // the block model has already been updated by the blocknode
         
@@ -189,20 +224,7 @@ public class ClipArea extends Pane {
         }
     }
     
-    public void setUniformWidth(int totalBlocks){//FIX THE WEIRD SNAPPING DUE TO WIDTH BEING SHRUNKEN WHEN BLOCKS ARE REMOVED
-        
-        double newWidth=((barWidthInPixels*totalBlocks)+extraSpace);
-        //System.out.println("Setting width to: "+newWidth+" (totalBlocks: "+totalBlocks+")");
-        this.totalWidth=newWidth;
-        setWidth(newWidth);
-        setPrefWidth(newWidth);
-        setMinWidth(newWidth);
-        setMaxWidth(newWidth);
-        //System.out.println("New width is: "+getWidth());
-        
-        refreshBlocks();
-        drawLines();
-    }
+    
     
     public void deleteSelectedBlock(){ //actually just empties it! no worries
         if(selectedBlock!=null){
@@ -214,6 +236,7 @@ public class ClipArea extends Pane {
             blockNodes.remove(selectedBlock);
             
             selectedBlock=null;
+            //should do more than this liike update the model
         }
     }
 
@@ -280,37 +303,12 @@ public class ClipArea extends Pane {
         System.out.println("hiding preview"); 
     }
 
-    
-    /* 
-    public void setStepWidth(double stepWidth){
-        this.stepWidth=stepWidth;
-        
-        // update area width
-        double totalWidth=totalSteps*stepWidth;
-        setPrefWidth(totalWidth);
-        setMinWidth(totalWidth);
-        
-        // refresh all blocks to use new step width
-        for(BlockNode node:blockNodes){
-            node.refresh();
-        }
-        
-        // redraw grid
-        drawGrid();
-    }*/
-    
     // getters 
-    public List<Block> getBlocks(){
-        return blocks;
-    }
+    public List<Block> getBlocks(){return blocks;}
     
-    public double getBarWidthInPixels(){
-        return barWidthInPixels;
-    }
+    public double getBarWidthInPixels(){return barWidthInPixels;}
     
-    public int getStepsPerBlock(){
-        return STEPS_PER_BLOCK;
-    }
+    public int getStepsPerBlock(){return STEPS_PER_BLOCK;}
 
     public List<BlockNode> getBlockNodes(){return blockNodes;}
 

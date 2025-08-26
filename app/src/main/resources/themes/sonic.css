@@ -1,6 +1,6 @@
 /* sonic theme - direct paths, no css variables */
 .main-pane{
-    -fx-background-image:url("/backgrounds/sonic_background.jpg");
+    -fx-background-image:url("/backgrounds/sonic_background.png");
     -fx-background-size:cover;
     -fx-background-repeat:no-repeat;
 }

@@ -12,6 +12,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
@@ -59,7 +61,7 @@ public class TopControlBar extends HBox{
         folderButton=new Button("FOLDER");
         themeButton=new MenuButton("PAINTBRUSH");
         settingsButton=new Button("SETTINGS");
-        playButton=new Button("▶");
+        playButton=new Button("");
         pauseButton=new Button("⏸");
         stopButton=new Button("⏹");
 
@@ -84,7 +86,12 @@ public class TopControlBar extends HBox{
         styleButton(folderButton);
         styleMenuButton(themeButton);
         styleButton(settingsButton);
-        styleButton(playButton);
+        Image playGraphic = new Image(getClass().getResourceAsStream("/images/bios_play.png"));
+ImageView img = new ImageView(playGraphic); img.setPreserveRatio(true);
+playButton.setText(""); // Remove any text
+playButton.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+playButton.setGraphic(img);
+playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(50);playButton.setMaxWidth(50);
         styleButton(pauseButton);
         styleButton(stopButton);
         styleMenuButton(addTrackButton);

@@ -34,7 +34,7 @@ public class PlaybackCursor extends Line {
 
     public void updatePosition(int step){
     
-        double xPosition=(step*(50.0/64.0))+100; //calculATE steps to pixels
+        double xPosition=(step*(50.0/64.0)); //calculATE steps to pixels
         setStartX(xPosition);
         setStartY(0);
         setEndX(xPosition);
