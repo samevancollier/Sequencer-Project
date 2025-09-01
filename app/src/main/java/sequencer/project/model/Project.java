@@ -7,7 +7,7 @@ import java.util.Map;
 
 import sequencer.project.audio.MusicRoom;
 
-public class Sequence {
+public class Project {
     private List<Track> tracks;
     private int bPM;
     private int timeSignature; //probably i will just have 4/4 available, but could do 3/4 etc idk maybe later
@@ -17,17 +17,16 @@ public class Sequence {
     private int length;
     private Map<Track, Integer> volumes = new HashMap<>();//likely not neeeded
     
-    public Sequence(){ //i really dont like passing this in all over the place, oh well
+    public Project(){ //i really dont like passing this in all over the place, oh well
         this.tracks = new ArrayList<>();
-        this.bPM = 200;
+        this.bPM = 120;
         this.timeSignature = 44;
         this.musicRoom = MusicRoom.getInstance();
         this.currentStep = 0;
         this.length=4000; //HERE
     }
 
-    public void addTrack(String chosenInstrument){
-        Track newTrack = new Track(chosenInstrument, tracks.size()+1);
+    public void addTrack(Track newTrack){
         tracks.add(newTrack);
         volumes.put(newTrack, newTrack.getVolume());
         System.out.println("Track added!" + tracks.size());
@@ -41,6 +40,8 @@ public class Sequence {
             System.out.println(track.getTrackNumber());
         }
     }
+
+    public void setBPM(int newBPM){this.bPM=newBPM;}
     //need method for removing tracks - must reassign track numbers
 
     public Track getTrack(int desiredTrackNumber){

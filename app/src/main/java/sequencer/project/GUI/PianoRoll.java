@@ -1,6 +1,7 @@
 package sequencer.project.GUI;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,18 +53,24 @@ public class PianoRoll extends VBox {
 
     private BlockNode openBlockNode;
 
+    private ThemeManager tm;
+    private ArrayList<Rectangle> whiteNotes;
+    private ArrayList<Rectangle> sharpNotes;
+
     private int octave=6; //playd aocateve
     ContextMenu contextMenu;
     //styling stuff: should be controlled by themeL add getters and setters
 
-    private Color oneThreeBarBackground=Color.rgb(155, 134, 134); //you can set opactity as a fourth param
-    private Color twoFourBarBackground=Color.rgb(61, 180, 112, 1);
-    private Color heaviestLine=Color.rgb(0, 0, 0);
-    private Color heavyLine=Color.rgb(91, 91, 91);
-    private Color lightLine=Color.rgb(174, 174, 174);
-    private Color lightestLine=Color.rgb(200, 174, 174);
-    private Color sharpNoteFill=Color.rgb(67, 67, 67);
-    private Color faintWhiteNoteLine=Color.rgb(182, 182, 182);
+    private Color oneThreeBarBackground;
+    private Color twoFourBarBackground;
+    private Color heaviestLine;
+    private Color sharpNoteFill;
+    private Color whiteNoteFill;
+    
+    private Color heavyLine;
+    private Color lightLine;
+    private Color lightestLine;
+    private Color faintWhiteNoteLine;
 
     private Color noteColour=Color.rgb(255, 108, 108, 1);
 
@@ -110,7 +117,7 @@ public class PianoRoll extends VBox {
      * 4 1/32
      * and so on.
      */
-    private void createNote(double x, double y, MouseEvent e){    
+    public void createNote(double x, double y, MouseEvent e){    
         double quantizedX=x;
         if(resolution==0){
             quantizedX=x-(x%barWidth);
@@ -153,15 +160,17 @@ public class PianoRoll extends VBox {
       
         Note newNote=new Note(pitch, step, length);
         openBlockNode.addNote(newNote);
-        graphicNotesAndNotes.put(newGraphicNote, newNote);
+        graphicNotesAndNotes.put(newGraphicNote, newNote);//useless now
         newGraphicNote.setNote(newNote);
+        openBlockNode.getGraphicNotes().add(newGraphicNote);//HERE
         System.out.println(graphicNotesAndNotes.toString());
         System.out.println("note added att"+step + "pitch:" + pitch);
     }
 
-    private void deleteNote(GraphicNote g){
+    public void deleteNote(GraphicNote g){
         //System.out.print(graphicNotesAndNotes.toString());
         openBlockNode.removeNote(g.getNote());
+        openBlockNode.getGraphicNotes().remove(g);//HERE
         notes.remove(g);
         //graphicNotesAndNotes.remove(g);
         noteLayer.getChildren().remove(g);
@@ -170,7 +179,7 @@ public class PianoRoll extends VBox {
     }
 
     private void initaliseComponents(){
-        
+        style();
         gridPane=new Pane();
         noteLayer=new Pane();
         backgroundPane=new Pane();
@@ -219,6 +228,16 @@ public class PianoRoll extends VBox {
         this.getChildren().add(keysAndGrid);
         
         VBox.setVgrow(keysAndGrid, Priority.ALWAYS);   
+    }
+
+    private void style(){
+        tm=ThemeManager.getInstance();
+        oneThreeBarBackground=tm.getOneAndThreeBG();
+        twoFourBarBackground=tm.getTwoAndFourBG();
+        heaviestLine=tm.getHeaviestPianoRollLine();heavyLine=tm.getHeavyPianoRollLine();lightLine=tm.getLightPianoRollLine();lightestLine=tm.getLightestPianoRollLine();
+        sharpNoteFill=tm.getSharpNoteFill();
+        faintWhiteNoteLine=tm.getWhiteNoteDivider();
+
     }
 
     private void handleKeyPress(KeyEvent e){
@@ -383,16 +402,17 @@ public class PianoRoll extends VBox {
         }
     }
     private void drawOctave(int octave){
+        whiteNotes = new ArrayList<>();
+        sharpNotes = new ArrayList<>();
+        
         int baseY=(9-octave)*(keyHeight*12);
-
-        Rectangle c=new Rectangle(0,baseY+keyHeight*11,keyboardWidth,keyHeight);    Line cLine=new Line(0,baseY+keyHeight*11,1200-keyboardWidth,baseY+keyHeight*11);
-        Rectangle d=new Rectangle(0,baseY+keyHeight*9,keyboardWidth,keyHeight);     Line dLine=new Line(0,baseY+keyHeight*9,1200-keyboardWidth,baseY+keyHeight*9);
-        Rectangle e=new Rectangle(0,baseY+keyHeight*7,keyboardWidth,keyHeight);     Line eLine=new Line(0,baseY+keyHeight*7,1200-keyboardWidth,baseY+keyHeight*7);
-        Rectangle f=new Rectangle(0,baseY+keyHeight*6,keyboardWidth,keyHeight);     Line fLine=new Line(0,baseY+keyHeight*6,1200-keyboardWidth,baseY+keyHeight*6);
-        Rectangle g=new Rectangle(0,baseY+keyHeight*4,keyboardWidth,keyHeight);     Line gLine=new Line(0,baseY+keyHeight*4,1200-keyboardWidth,baseY+keyHeight*4);
-        Rectangle a=new Rectangle(0,baseY+keyHeight*2,keyboardWidth,keyHeight);     Line aLine=new Line(0,baseY+keyHeight*2,1200-keyboardWidth,baseY+keyHeight*2);
-        Rectangle b=new Rectangle(0,baseY,keyboardWidth,keyHeight);                 Line bLine=new Line(0,baseY,1200-keyboardWidth,baseY);
-
+        Rectangle c=new Rectangle(0,baseY+keyHeight*11,keyboardWidth,keyHeight);    Rectangle cBackground=new Rectangle(0,baseY+keyHeight*11,1200-keyboardWidth,keyHeight);
+        Rectangle d=new Rectangle(0,baseY+keyHeight*9,keyboardWidth,keyHeight);     Rectangle dBackground=new Rectangle(0,baseY+keyHeight*9,1200-keyboardWidth,keyHeight);
+        Rectangle e=new Rectangle(0,baseY+keyHeight*7,keyboardWidth,keyHeight);     Rectangle eBackground=new Rectangle(0,baseY+keyHeight*7,1200-keyboardWidth,keyHeight);
+        Rectangle f=new Rectangle(0,baseY+keyHeight*6,keyboardWidth,keyHeight);     Rectangle fBackground=new Rectangle(0,baseY+keyHeight*6,1200-keyboardWidth,keyHeight);
+        Rectangle g=new Rectangle(0,baseY+keyHeight*4,keyboardWidth,keyHeight);     Rectangle gBackground=new Rectangle(0,baseY+keyHeight*4,1200-keyboardWidth,keyHeight);
+        Rectangle a=new Rectangle(0,baseY+keyHeight*2,keyboardWidth,keyHeight);     Rectangle aBackground=new Rectangle(0,baseY+keyHeight*2,1200-keyboardWidth,keyHeight);
+        Rectangle b=new Rectangle(0,baseY,keyboardWidth,keyHeight);                 Rectangle bBackground=new Rectangle(0,baseY,1200-keyboardWidth,keyHeight);
         c.setFill(Color.WHITE);
         d.setFill(Color.WHITE);
         e.setFill(Color.WHITE);
@@ -400,7 +420,6 @@ public class PianoRoll extends VBox {
         g.setFill(Color.WHITE);
         a.setFill(Color.WHITE);
         b.setFill(Color.WHITE);
-
         c.setStroke(Color.BLACK);
         d.setStroke(Color.BLACK);
         e.setStroke(Color.BLACK);
@@ -408,42 +427,63 @@ public class PianoRoll extends VBox {
         g.setStroke(Color.BLACK);
         a.setStroke(Color.BLACK);
         b.setStroke(Color.BLACK);
-
-        cLine.setStroke(faintWhiteNoteLine);
-        dLine.setStroke(faintWhiteNoteLine);
-        eLine.setStroke(faintWhiteNoteLine);
-        fLine.setStroke(faintWhiteNoteLine);
-        gLine.setStroke(faintWhiteNoteLine);
-        aLine.setStroke(faintWhiteNoteLine);
-        bLine.setStroke(faintWhiteNoteLine);
-
+        cBackground.setFill(whiteNoteFill);
+        dBackground.setFill(whiteNoteFill);
+        eBackground.setFill(whiteNoteFill);
+        fBackground.setFill(whiteNoteFill);
+        gBackground.setFill(whiteNoteFill);
+        aBackground.setFill(whiteNoteFill);
+        bBackground.setFill(whiteNoteFill);
+        cBackground.setStroke(faintWhiteNoteLine);
+        dBackground.setStroke(faintWhiteNoteLine);
+        eBackground.setStroke(faintWhiteNoteLine);
+        fBackground.setStroke(faintWhiteNoteLine);
+        gBackground.setStroke(faintWhiteNoteLine);
+        aBackground.setStroke(faintWhiteNoteLine);
+        bBackground.setStroke(faintWhiteNoteLine);
+        cBackground.setStrokeWidth(1);
+        dBackground.setStrokeWidth(1);
+        eBackground.setStrokeWidth(1);
+        fBackground.setStrokeWidth(1);
+        gBackground.setStrokeWidth(1);
+        aBackground.setStrokeWidth(1);
+        bBackground.setStrokeWidth(1);
+        cBackground.setMouseTransparent(true);
+        dBackground.setMouseTransparent(true);
+        eBackground.setMouseTransparent(true);
+        fBackground.setMouseTransparent(true);
+        gBackground.setMouseTransparent(true);
+        aBackground.setMouseTransparent(true);
+        bBackground.setMouseTransparent(true);
         Rectangle cSharp=new Rectangle(0,baseY+keyHeight*10,keyboardWidth,keyHeight);  Rectangle cSharpBackground=new Rectangle(0,baseY+keyHeight*10,1200-keyboardWidth,keyHeight);
         Rectangle dSharp=new Rectangle(0,baseY+keyHeight*8,keyboardWidth,keyHeight);   Rectangle dSharpBackground=new Rectangle(0,baseY+keyHeight*8,1200-keyboardWidth,keyHeight);
         Rectangle fSharp=new Rectangle(0,baseY+keyHeight*5,keyboardWidth,keyHeight);   Rectangle fSharpBackground=new Rectangle(0,baseY+keyHeight*5,1200-keyboardWidth,keyHeight);
         Rectangle gSharp=new Rectangle(0,baseY+keyHeight*3,keyboardWidth,keyHeight);   Rectangle gSharpBackground=new Rectangle(0,baseY+keyHeight*3,1200-keyboardWidth,keyHeight);
         Rectangle aSharp=new Rectangle(0,baseY+keyHeight*1,keyboardWidth,keyHeight);   Rectangle aSharpBackground=new Rectangle(0,baseY+keyHeight*1,1200-keyboardWidth,keyHeight);
-
         cSharp.setFill(Color.BLACK);
         dSharp.setFill(Color.BLACK);
         fSharp.setFill(Color.BLACK);
         gSharp.setFill(Color.BLACK);
         aSharp.setFill(Color.BLACK);
-        
+       
         cSharpBackground.setFill(sharpNoteFill);
         dSharpBackground.setFill(sharpNoteFill);
         fSharpBackground.setFill(sharpNoteFill);
         gSharpBackground.setFill(sharpNoteFill);
         aSharpBackground.setFill(sharpNoteFill);
-        
+       
         cSharpBackground.setMouseTransparent(true);
         dSharpBackground.setMouseTransparent(true);
         fSharpBackground.setMouseTransparent(true);
         gSharpBackground.setMouseTransparent(true);
         aSharpBackground.setMouseTransparent(true);
-
+        
+        whiteNotes.addAll(Arrays.asList(c, d, e, f, g, a, b));
+        sharpNotes.addAll(Arrays.asList(cSharp, dSharp, fSharp, gSharp, aSharp));
+        
         keyboard.getChildren().addAll(c,cSharp,d,dSharp,e,f,fSharp,g,gSharp,a,aSharp,b);
-        gridPane.getChildren().addAll(cSharpBackground,dSharpBackground,fSharpBackground,gSharpBackground,aSharpBackground,cLine,dLine,eLine,fLine,gLine,aLine,bLine);
-}
+        gridPane.getChildren().addAll(cSharpBackground,dSharpBackground,fSharpBackground,gSharpBackground,aSharpBackground,cBackground,dBackground,eBackground,fBackground,gBackground,aBackground,bBackground);
+    }
 
     private void setUpGrid(){
         noteLayer.setStyle("-fx-background-color: transparent;");
@@ -542,7 +582,7 @@ public class PianoRoll extends VBox {
 
         // bar lines
         Line barLine=new Line(usefulNumber,0,usefulNumber,totalHeight);
-        barLine.setStroke(heaviestLine);
+        barLine.setStroke(heaviestLine);barLine.setStrokeWidth(2);
         gridPane.getChildren().add(barLine);
         }
     }
@@ -568,7 +608,7 @@ public class PianoRoll extends VBox {
         
 
         keyboard.setStyle("-fx-background-color: lightgray;");
-        Line rightBoundary=new Line(keyboardWidth,0,keyboardWidth,totalHeight); //fix
+        Line rightBoundary=new Line(keyboardWidth,0,keyboardWidth,totalHeight); rightBoundary.setStroke(faintWhiteNoteLine); //fix
         for(int i=0;i<12;i++){
             drawOctave(i);
         }
@@ -578,10 +618,25 @@ public class PianoRoll extends VBox {
         
     }
     public void setOpenBlock(BlockNode openBlock){
+        System.out.println("new block oepend");
         this.openBlockNode=openBlock;
+        refresh();
     }
 
-    private int subdivisionToStep(){
+    private void refresh(){
+        //clear existing notes
+        getNoteLayer().getChildren().clear();
+        
+        //add notes from current block
+        if(openBlockNode!=null){
+            ArrayList<GraphicNote> blockNotes=openBlockNode.getGraphicNotes();
+            for(int i=0;i<blockNotes.size();i++){
+                getNoteLayer().getChildren().add(blockNotes.get(i));
+            }
+        }
+    }
+
+    public int subdivisionToStep(){
         switch(resolution){
             case 0: return 64;
             case 1: return 16;
@@ -607,277 +662,7 @@ public class PianoRoll extends VBox {
     public boolean getIsDragging(){return isDragging;}
 
 
-private static class GraphicNote extends Rectangle{
 
-    private Block owningBlock;
-    private BlockNode owningBlockNode;
-    private int keyHeight;
-    private PianoRoll pianoRoll;
-    private boolean isDraggingLeft=false;
-    private boolean isDraggingRight=false;
-    private boolean isDraggingBody=false;
-    private double startX,startWidth,startMouseX;
-    private static final double DRAG_ZONE=5.0;
-    private Rectangle previewRect;
-    private List<Rectangle> previewRects=new ArrayList<>();     //weird
-    private boolean selected;
-    private Note note;
-    private Pane noteLayer;
-    private Boolean isShiftDown=false;
-
-    GraphicNote(double x,double y,double width,int height,PianoRoll pianoRoll){
-        super(x,y,width,height);
-        setFocusTraversable(false);
-        
-        this.pianoRoll=pianoRoll;
-        this.owningBlockNode=pianoRoll.getBlockNode();
-        this.keyHeight=pianoRoll.getKeyHeight();
-        this.noteLayer=pianoRoll.getNoteLayer();
-        setupEventHandlers();
-    }
-    
-    private void setupEventHandlers(){
-        setOnMousePressed(this::onMousePressed);
-        setOnMouseDragged(this::onMouseDragged);
-        setOnMouseReleased(this::onMouseReleased);
-        
-        
-        // change cursor based on position need to fix it 
-        setOnMouseMoved(e->{
-            double mouseX=e.getX();
-            if(mouseX<=DRAG_ZONE){
-                setCursor(Cursor.W_RESIZE);
-            }else if(mouseX>=getWidth()-DRAG_ZONE){
-                setCursor(Cursor.E_RESIZE);
-            }else{
-                setCursor(Cursor.MOVE);
-            }
-        });
-    }
-    
-    private void onMousePressed(MouseEvent e){      //add stuff to drag notes without holding shift 
-        isShiftDown=e.isShiftDown();
-        select();
-        double mouseX=e.getX()-getX();
-        startX=getX();
-        startWidth=getWidth();
-        startMouseX=e.getX();
-    
-        isDraggingLeft=(mouseX<=DRAG_ZONE);
-        isDraggingRight=(mouseX>=getWidth()-DRAG_ZONE);
-        isDraggingBody=!isDraggingLeft&&!isDraggingRight;
-    
-        // create preview rectangles for all selected notes
-        if(isDraggingLeft||isDraggingRight||isDraggingBody){
-            List<GraphicNote> selectedNotes=pianoRoll.getSelectedNotes();
-            for(GraphicNote note : selectedNotes){
-                Rectangle previewRect=new Rectangle(note.getX(),note.getY(),note.getWidth(),note.getHeight());
-                previewRect.setFill(Color.TRANSPARENT);
-                previewRect.setStroke(Color.YELLOW);
-                previewRect.setStrokeWidth(2);
-                previewRect.getStrokeDashArray().addAll(5.0,5.0);
-                ((Pane)getParent()).getChildren().add(previewRect);
-                previewRects.add(previewRect);
-            }
-        }
-    }
-
-    private void onMouseDragged(MouseEvent e){
-        double deltaX=e.getX()-startMouseX;
-        double subdivisionWidth=pianoRoll.getSubdivisionWidth();
-        List<GraphicNote> selectedNotes=pianoRoll.getSelectedNotes();
-        
-    
-        if(isDraggingLeft){
-            // LEFT EDGE DRAG: resize all selected notes
-            for(int i=0;i<selectedNotes.size();i++){
-                GraphicNote note=selectedNotes.get(i);
-                Rectangle preview=previewRects.get(i);
-                double newX=note.getX()+deltaX;
-                double newWidth=note.getWidth()-deltaX;
-            
-                if(newWidth>=subdivisionWidth){
-                    preview.setX(newX);
-                    preview.setWidth(newWidth);
-                }
-            }
-        }else if(isDraggingRight){
-            // RIGHT EDGE DRAG: resize all selected notes
-            for(int i=0;i<selectedNotes.size();i++){
-                GraphicNote note=selectedNotes.get(i);
-                Rectangle preview=previewRects.get(i);
-                double newWidth=note.getWidth()+deltaX;
-            
-                if(newWidth>=subdivisionWidth){
-                    preview.setWidth(newWidth);
-                }
-            }
-        }else if(isDraggingBody){
-            // BODY DRAG: move all selected notes
-            double newY=e.getY();
-            double keyHeight=pianoRoll.getKeyHeight();
-            double quantizedY=newY-(newY%keyHeight);
-            double deltaY=quantizedY-getY();
-        
-            for(int i=0;i<selectedNotes.size();i++){
-                GraphicNote note=selectedNotes.get(i);
-                Rectangle preview=previewRects.get(i);
-                double newX=note.getX()+deltaX;
-                double newNoteY=note.getY()+deltaY;
-            
-                preview.setX(newX);
-                preview.setY(newNoteY);
-            }
-        }
-        e.consume();
-    }
-
-    private void select(){
-        selected=true;
-        System.out.println("Before focus request - current focus: " + pianoRoll.getScene().getFocusOwner());
-        noteLayer.requestFocus();
-        System.out.println("After focus request - current focus: " + pianoRoll.getScene().getFocusOwner());
-        System.out.println("noteLayer.isFocused(): " + noteLayer.isFocused());
-        setFill(Color.rgb(0, 108, 255, 0.5));                                                               //HARDCODED COLOUR HERE
-        if(isShiftDown || pianoRoll.getIsDragging()){
-            pianoRoll.getSelectedNotes().add(this);
-           // System.out.println("NEW NOTE SELECTED: " + note.getStep()+":"+note.getPitch());
-            System.out.println("Added to selection (shift). List size: " + pianoRoll.getSelectedNotes().size());
-
-        }else{
-            for(GraphicNote g : new ArrayList<>(pianoRoll.getSelectedNotes())){
-                System.out.println("deselecting...,");
-                g.deselect();
-            }
-            pianoRoll.getSelectedNotes().clear();
-            pianoRoll.getSelectedNotes().add(this);
-            System.out.println("Added to selection solo. List size: " + pianoRoll.getSelectedNotes().size());
-        }
-    }
-    public void deselect(){
-        selected=false;
-        setFill(Color.rgb(255, 0, 0, 1));
-    }
-    private void onMouseReleased(MouseEvent e){
-        e.consume();
-        List<GraphicNote> selectedNotes = new ArrayList<>(pianoRoll.getSelectedNotes());
-        if(isDraggingLeft||isDraggingRight||isDraggingBody){
-           // List<GraphicNote> selectedNotes=pianoRoll.getSelectedNotes();
-            double subdivisionWidth=pianoRoll.getSubdivisionWidth();
-        
-            // collect target positions for all notes
-            List<Double> targetXs=new ArrayList<>();
-            List<Double> targetYs=new ArrayList<>();
-            List<Double> targetWidths=new ArrayList<>();
-        
-            for(int i=0;i<selectedNotes.size();i++){
-                Rectangle preview=previewRects.get(i);
-                double targetX=preview.getX();
-                double targetY=preview.getY();
-                double targetWidth=preview.getWidth();
-            
-                // quantize positions
-                double quantizedX=Math.round(targetX/subdivisionWidth)*subdivisionWidth;
-                double quantizedY=Math.round(targetY/keyHeight)*keyHeight;
-                double quantizedWidth=Math.round(targetWidth/subdivisionWidth)*subdivisionWidth;
-            
-                if(quantizedWidth<subdivisionWidth){
-                    quantizedWidth=subdivisionWidth;
-                }
-            
-                targetXs.add(quantizedX);
-                targetYs.add(quantizedY);
-                targetWidths.add(quantizedWidth);
-            }
-        
-            // remove preview rectangles
-            for(Rectangle preview : previewRects){
-                ((Pane)getParent()).getChildren().remove(preview);
-            }
-            previewRects.clear();
-        
-            // update all notes and handle collisions/bounds
-            for(int i=selectedNotes.size()-1;i>=0;i--){
-                GraphicNote note=selectedNotes.get(i);
-                double quantizedX=targetXs.get(i);
-                double quantizedY=targetYs.get(i);
-                double quantizedWidth=targetWidths.get(i);
-            
-                // check bounds
-                int step=(int)(quantizedX/subdivisionWidth) * (int)Math.pow(2, (5-pianoRoll.getResolution()));
-                int pitch=119-((int)quantizedY/keyHeight);
-                int length=(int)(quantizedWidth/subdivisionWidth);
-            
-                // delete if out of bounds
-                if(step<0||step>255||pitch<0||pitch>119){
-                    pianoRoll.deleteNote(note); //maybe here
-                    continue;
-                }
-            
-                // delete overlapping notes (not selected)
-                for(int j=pianoRoll.getAllNotes().size()-1;j>=0;j--){
-                    GraphicNote g=pianoRoll.getAllNotes().get(j);
-                    if(!selectedNotes.contains(g) && g.getY()==quantizedY){
-                        if(g.getX()<quantizedX+quantizedWidth && g.getX()+g.getWidth()>quantizedX){
-                            pianoRoll.deleteNote(g);
-                        }
-                    }
-                }
-            
-                // update note position and model
-                note.setX(quantizedX);
-                note.setY(quantizedY);
-                note.setWidth(quantizedWidth);
-                note.setFill(Color.rgb(0, 108, 255, 0.5));          //HARDCODED COLOUR HEHRE
-            
-                note.getNote().setPosition(step);
-                note.getNote().setPitch(pitch);
-                note.getNote().setLength(length);
-            }
-        
-            Platform.runLater(() -> {
-                noteLayer.requestFocus();
-            });
-        }
-        isDraggingLeft=false;
-        isDraggingRight=false;
-        isDraggingBody=false;
-    }
-    public void setNote(Note note){this.note=note;}
-
-    public void move(KeyEvent e){           //ADD BOUNDS CHECKS
-        KeyCode k=e.getCode();
-        double subdivisionWidth=pianoRoll.getSubdivisionWidth();
-        if(k==KeyCode.DOWN && note.getPitch()>0){
-            
-            double y=getY();
-            System.out.println("y= "+y);
-            setY(y+keyHeight);
-            System.out.println("y= "+getY());
-            note.setPitch(note.getPitch()-1);
-            System.out.println("NEWpitch: " + note.getPitch());
-
-        } else if (k==KeyCode.UP && note.getPitch()<119){
-            double y=getY();
-            setY(y-keyHeight);
-            note.setPitch(note.getPitch()+1);
-            System.out.println("NEWpitch: " + note.getPitch());
-        } else if (k==KeyCode.LEFT && note.getStep()>0){
-            double x=getX();
-            setX(x-subdivisionWidth);
-            note.setPosition(note.getStep()-pianoRoll.subdivisionToStep());                 //WRONG, NEEDs TO BE BASED ON RESOLUTION!
-            System.out.println("NEWSTEP: " + note.getStep());
-        } else if (k==KeyCode.RIGHT && note.getStep()<255){
-            double x=getX();
-            setX(x+subdivisionWidth);
-            note.setPosition(note.getStep()+pianoRoll.subdivisionToStep());
-            System.out.println("NEWSTEP: " + note.getStep());
-        }
-        
-    }
-
-    public Note getNote(){return note;}
-}
     
 
 }

@@ -100,7 +100,12 @@ import sequencer.project.GUI.*;
 //drag selection without holding shift
 //fix behaivour of dragged notes at edges (edge should act like a wall)
 //fix piano roll scrolling with key movement
-//fix selections no longer move with key presses after resolution change 
+//fix selections no longer move with key presses after resolution change            :)
+
+//populate instruments
+//playback point set at selected block
+//finish theme implementation
+//copy paste notes
 
 //MAKE SURE model is being updated correctly
 
@@ -109,22 +114,38 @@ import sequencer.project.GUI.*;
 //today:
 //
 
+//basic fx area functionality               :)
+//bpm control                               :)
+//volume control
+//volume animation
+//notes drawn in blocknode the right way
+//change track instrument
+//style cursor
+
+//ONE: FIX LINE ISSUES
+//TWO: FX AREA
+//THREE: FOLDER/SAVING
+//FOUR: FINISH THEMING
+//FIVE: POPULATE INSTRUMENTS
+
+
+
 public class App {
     private static AudioEngine audioEngine;
     private static AudioPlayer audioPlayer;
-    private static Sequence currentSequence;
+    private static Project currentProject;
     public static void main(String[] args) {
         
 
-        currentSequence=new Sequence();
+        currentProject=new Project();
         audioEngine=new AudioEngine();
-        audioPlayer=new AudioPlayer(currentSequence,audioEngine);
+        audioPlayer=new AudioPlayer(currentProject,audioEngine);
         
  
 
         
         
-        
+        /* 
         currentSequence.addTrack("Teenage Drums"); currentSequence.addTrack("Square");
         Track myTrack = currentSequence.getTrack(0); Track myTrack2 = currentSequence.getTrack(1);
         System.out.println("Track number: " + myTrack.getTrackNumber());
@@ -145,7 +166,7 @@ public class App {
                 myTrack2.addNote(i, 63, 127, 1);
             }
         }
-
+        */
         Application.launch(sequencer.project.GUI.GUILauncher.class, args);
         /* 
         try {
@@ -191,6 +212,7 @@ public class App {
         myTrack.addNote(5, 60, 0, 1);
         audioPlayer.play();
         while(audioPlayer.playing()) {
+
             try {
                  Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -202,7 +224,7 @@ public class App {
     }
     public static AudioEngine getAudioEngine(){ return audioEngine; }
     public static AudioPlayer getAudioPlayer(){ return audioPlayer; }
-    public static Sequence getCurrentSequence(){ return currentSequence; }
+    public static Project getCurrentSequence(){ return currentProject; }
 
     
 }

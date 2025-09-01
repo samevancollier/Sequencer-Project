@@ -1,6 +1,7 @@
 package sequencer.project.GUI;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -13,6 +14,7 @@ public class TrackRow extends HBox {
     private static final double HEIGHT=100; //height for everything, basically
 
     private int trackIndex;
+    private int colourPallete;
     private InstrumentType trackType;
     private String trackName;
     private boolean isSelected;
@@ -27,47 +29,44 @@ public class TrackRow extends HBox {
     //STUFF ASSOCIATED WITH BACKEND
 
     private Track track;
+
+    private String unselectedStyle;
+    private String selectedStyle;
     
     //private double currentZoomLevel=1.0; HANDLED GLOBALLY..by trackContainer
 
-    private static final Color[] TRACK_COLOURS={
-        Color.web("#ff6b6b"), // red
-        Color.web("#4ecdc4"), // teal  
-        Color.web("#45b7d1"), // blue
-        Color.web("#96ceb4"), // green
-        Color.web("#feca57"), // yellow
-        Color.web("#ff9ff3"), // pink
-        Color.web("#54a0ff"), // light blue
-        Color.web("#5f27cd")  // purple
-    };
-    //filller stylessss
-    private static final String SELECTED_STYLE=
-        "-fx-background-color: #2a2a2a;" +
-        "-fx-border-color: #4a9eff;" +
-        "-fx-border-width: 2px;";
-        
-    private static final String UNSELECTED_STYLE=
-        "-fx-background-color: transparent;" +
-        "-fx-border-color: #333333;" +
-        "-fx-border-width: 1px;";
-
+   
     public TrackRow(int trackIndex, String trackName, InstrumentType trackType, TrackContainer parentContainer){
         this.parentContainer=parentContainer;
         this.trackIndex=trackIndex;
         this.trackName =trackName;
         this.trackType=trackType;
+        ThemeManager tm=ThemeManager.getInstance();
+        this.colourPallete = trackIndex % tm.getTrackColourCount();
+
         
         
-        this.trackColour=TRACK_COLOURS[trackIndex];
+        
+        
+        this.trackColour=tm.getTrackColourBase(colourPallete);
         this.isSelected=false;
-        this.track=new Track(trackName, trackIndex);
-        this.clipArea=new ClipArea(this); 
+        this.track=new Track(trackName, trackIndex);//HERE
+        this.clipArea=new ClipArea(this, track); 
         this.clipAreaScrollPane=new ScrollPane(clipArea);
         initializeLayout();
         //setupMouseHandlers(); //do later
     } 
 
+    public void style(){
+        ThemeManager tm=ThemeManager.getInstance();
+        unselectedStyle="-fx-background-color: transparent; -fx-border-color: "+tm.getLineColour().toString().replace("0x", "#")+"; -fx-border-width: 1px";//SHOULD NOT BE HARDCODED IN THIS WAY!
+        selectedStyle="-fx-background-color: transparent; -fx-border-color: "+tm.getLineColour().toString().replace("0x", "#")+"; -fx-border-width: 7px";
+        this.setStyle(unselectedStyle);//THIS WILL CAUSE A BUG IF CHANGING THEME WHILE HAVING TRACKS SELECTED
+    }
+    
+
     private void initializeLayout(){
+        setAlignment(Pos.CENTER_LEFT);
         setStyle("-fx-background-color: transparent;");
         //CREATE THREE MAIN SECTIONS
         setPrefHeight(HEIGHT);setMinHeight(HEIGHT);setMaxHeight(HEIGHT);
@@ -83,17 +82,17 @@ public class TrackRow extends HBox {
         clipAreaScrollPane.setFitToWidth(false); // important! let it scroll horizontally
         clipAreaScrollPane.setPannable(false);
         clipAreaScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        clipArea.drawLines();
+        //clipArea.drawLines();
         HBox.setHgrow(clipAreaScrollPane, Priority.ALWAYS); // expand to fill space
         
         //FX AREA
-        fxArea=new FXArea();
+        fxArea=new FXArea(this);
         fxArea.setPrefWidth(HEIGHT);fxArea.setPrefHeight(HEIGHT);fxArea.setMinWidth(HEIGHT);fxArea.setMinHeight(HEIGHT);
 
         //add all sectiond
         getChildren().addAll(trackControl, clipAreaScrollPane, fxArea);//add fx area later
 
-        setStyle(UNSELECTED_STYLE);
+        style();
         setSpacing(0);
         setPadding(new Insets(0));
     }
@@ -105,9 +104,9 @@ public class TrackRow extends HBox {
     public void setSelected(boolean selected) {
             this.isSelected = selected;
             if (selected) {
-                setStyle(SELECTED_STYLE);
+                setStyle(selectedStyle);
             } else {
-                setStyle(UNSELECTED_STYLE);
+                setStyle(unselectedStyle);
             }
         }
         public boolean isSelected() {
@@ -121,4 +120,5 @@ public class TrackRow extends HBox {
     public ClipArea getClipArea(){return clipArea;}
     public Track getTrack(){return track;}
     public int getIndex(){return trackIndex;}
+    public int getPallete(){return colourPallete;}
 }

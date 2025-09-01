@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -15,10 +16,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import sequencer.project.audio.AudioPlayer;
 import sequencer.project.model.InstrumentType;
+import sequencer.project.model.Project;
 
 public class TopControlBar extends HBox{
     
@@ -45,27 +48,80 @@ public class TopControlBar extends HBox{
     // time signature
     private Label timeSignatureLabel;
     private Label bPMLabel;
+
+    private ThemeManager tM;
+    private ArrayList<Button> buttons;
+    private Project project;
+
+
+    //rando
+
+    private boolean isDragging=false;
+    private double dragStartY;
+    private int dragStartBPM;
     
-    public TopControlBar(GUIController controller){
+    public TopControlBar(GUIController controller, Project project){
+        this.project=project;
         this.controller=controller;
+        this.tM=ThemeManager.getInstance();
         initializeComponents();
         setupLayout();
         setupEventHandlers();
         this.setPrefHeight(50);
+        this.setStyle("-fx-background-color: "+tM.getDefaultColour()+"; -fx-border-color: "+tM.getLineColourToString()+";");
 
         this.audioPlayer=controller.getAudioPlayer();
+        
+    }
+
+    private void styleButtons(){
+        for(Button b:buttons){
+            Image graphic=new Image(getClass().getResourceAsStream("/images/"+tM.getCurrentTheme()+"_"+b.getText()+".png"));
+            ImageView image = new ImageView(graphic); 
+            image.setPreserveRatio(true);
+            b.setText("");
+            b.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+            b.setGraphic(image);
+            
+            b.setMinHeight(50);b.setMaxHeight(50);b.setMinWidth(50);b.setMaxWidth(50);//no reason for this tobe inside this loop
+            b.setStyle("-fx-border-color: transparent "+tM.getLineColourToString()+" transparent"+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
+        }
+    }
+    private void styleTextBased(){
+        projectNameField.setFont(tM.getFont(14));
+        projectNameField.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + ";-fx-background-color: "+tM.getDefaultColour()+"; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1; -fx-alignment: center;");
+        
+        timeSignatureLabel.setFont(tM.getFont(14));
+        timeSignatureLabel.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + ";-fx-background-color: transparent; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
+        
+        bPMLabel.setFont(tM.getFont(14));
+        bPMLabel.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + "; -fx-background-color: transparent; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
+        
+        addTrackButton.setFont(tM.getFont(14));
+        addTrackButton.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + "; -fx-background-color: "+tM.getDefaultColour()+"; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
+        
+        folderButton.setFont(tM.getFont(14));
+        folderButton.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + "; -fx-background-color: "+tM.getDefaultColour()+"; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
+        
+        settingsButton.setFont(tM.getFont(14));
+        settingsButton.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + "; -fx-background-color: "+tM.getDefaultColour()+"; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
+        
+        themeButton.setFont(tM.getFont(14));
+        themeButton.setStyle("-fx-text-fill: " + tM.getDefaultFontColour() + "; -fx-background-color: "+tM.getDefaultColour()+"; -fx-border-color: transparent "+tM.getLineColourToString()+" transparent "+tM.getLineColourToString()+"; -fx-border-width: 0 1 0 1;");
     }
     
     private void initializeComponents(){
         // project control buttons
-        folderButton=new Button("FOLDER");
-        themeButton=new MenuButton("PAINTBRUSH");
-        settingsButton=new Button("SETTINGS");
-        playButton=new Button("");
-        pauseButton=new Button("⏸");
-        stopButton=new Button("⏹");
+        folderButton=new Button("folder");
+        themeButton=new MenuButton("paintbrush");
+        settingsButton=new Button("settings");
+        playButton=new Button("play");
+        pauseButton=new Button("pause");
+        stopButton=new Button("stop");
 
         addTrackButton=new MenuButton("+");
+        buttons=new ArrayList<>();
+        buttons.add(playButton);buttons.add(stopButton);buttons.add(pauseButton);
 
         
         // project name field
@@ -77,23 +133,18 @@ public class TopControlBar extends HBox{
         
         // time signature
         timeSignatureLabel=new Label("4/4");
-        timeSignatureLabel.setFont(Font.font(14));
+     
 
         bPMLabel=new Label("120");
-        timeSignatureLabel.setFont(Font.font(14));
+   
         
         // style the project buttons
         styleButton(folderButton);
         styleMenuButton(themeButton);
         styleButton(settingsButton);
-        Image playGraphic = new Image(getClass().getResourceAsStream("/images/bios_play.png"));
-ImageView img = new ImageView(playGraphic); img.setPreserveRatio(true);
-playButton.setText(""); // Remove any text
-playButton.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
-playButton.setGraphic(img);
-playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(50);playButton.setMaxWidth(50);
-        styleButton(pauseButton);
-        styleButton(stopButton);
+        
+        
+        
         styleMenuButton(addTrackButton);
 
         styleAsButton(bPMLabel);styleAsButton(timeSignatureLabel);
@@ -102,11 +153,10 @@ playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(5
 
         setUpAddTrackButton();
         setUpThemeButton();
+        setupBPMLabel();
         // style project name field
-        projectNameField.setStyle("-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-border-color: #555; -fx-border-radius: 3; -fx-background-radius: 3;");
-        
-        // style time signature
-        timeSignatureLabel.setStyle("-fx-text-fill: white;");
+        styleButtons();
+        styleTextBased();
     }
     
     private void setupLayout(){
@@ -114,7 +164,7 @@ playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(5
         this.setAlignment(Pos.CENTER);
         this.setSpacing(0);
         this.setPadding(new Insets(0));
-        this.setStyle("-fx-background-color: #2a2a2a; -fx-border-color: #555; -fx-border-width: 0 0 1 0;");
+       
         
         
         
@@ -158,10 +208,7 @@ playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(5
             audioPlayer.stop();
         });
         
-        addTrackButton.setOnAction(e->{
-            
-        });
-        
+       
         projectNameField.setOnAction(e->{
             System.out.println("project name changed to: "+projectNameField.getText());
             // save project name
@@ -179,7 +226,11 @@ playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(5
         for(InstrumentType i : InstrumentType.values()){
             if(!(i.isMainCategory())){
                 MenuItem newMenuItem=new MenuItem(i.toString());
-                newMenuItem.setOnAction(e->controller.getContainer().addTrack(i.toString(),i.getMainCategoryAsType()));
+                newMenuItem.setOnAction(e->{
+                    String displayName=i.toString().replace("_"," ");
+                    displayName=displayName.substring(0,1).toUpperCase()+displayName.substring(1).toLowerCase();
+                    controller.getContainer().addTrack(displayName,i.getMainCategoryAsType());
+                });
                 
                 String parentCategoryName=i.getMainCategory().toString(); 
                 Menu parentMenu=categoryMenus.get(parentCategoryName);
@@ -197,28 +248,91 @@ playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(5
             themeButton.getItems().add(menuItem);
         }
     }
+    private void setupBPMLabel(){
+        updateBPMDisplay();
+        
+        // mouse pressed - start drag tracking
+        bPMLabel.setOnMousePressed(e->{
+            isDragging=true;
+            dragStartY=e.getSceneY();
+            dragStartBPM=project.getBPM();
+        });
+        
+        // mouse dragged - update bpm based on vertical movement
+        bPMLabel.setOnMouseDragged(e->{
+            if(!isDragging)return;
+            
+            double deltaY=dragStartY-e.getSceneY(); // up is positive
+            int bpmChange=(int)(deltaY/3); // 3 pixels = 1 bpm change
+            int newBPM=Math.max(20,Math.min(300,dragStartBPM+bpmChange));
+            
+            project.setBPM(newBPM);
+            updateBPMDisplay();
+        });
+        
+        // mouse released - stop dragging
+        bPMLabel.setOnMouseReleased(e->{
+            isDragging=false;
+        });
+        
+        // double click - text input
+        bPMLabel.setOnMouseClicked(e->{
+            if(e.getClickCount()==2){
+                showBPMTextInput();
+            }
+        });
+        
+        // visual feedback for interactivity
+        bPMLabel.setStyle("-fx-cursor: hand;");
+    }
+
+    private void updateBPMDisplay(){
+        bPMLabel.setText(project.getBPM()+"");
+    }
+
+    private void showBPMTextInput(){
+        TextField textField=new TextField(String.valueOf(project.getBPM()));
+        textField.setPrefWidth(bPMLabel.getWidth());
+        textField.selectAll();
+        
+        // replace label with text field temporarily
+        Parent parent=bPMLabel.getParent();
+        if(parent instanceof Pane){
+            Pane pane=(Pane)parent;
+            int index=pane.getChildren().indexOf(bPMLabel);
+            pane.getChildren().set(index,textField);
+            textField.requestFocus();
+            
+            // enter or focus lost - apply changes
+            Runnable applyChanges=()->{
+                try{
+                    int newBPM=Integer.parseInt(textField.getText().trim());
+                    if(newBPM>=20&&newBPM<=300){
+                        project.setBPM(newBPM);
+                    }
+                }catch(NumberFormatException ignored){}
+                
+                updateBPMDisplay();
+                pane.getChildren().set(index,bPMLabel);
+            };
+            
+            textField.setOnAction(e->applyChanges.run());
+            textField.focusedProperty().addListener((obs,oldVal,newVal)->{
+                if(!newVal)applyChanges.run();
+            });
+        }
+    }
+
     private void styleButton(Button button){
         button.setMinWidth(50); button.setMaxWidth(50);
         button.setMinHeight(50); button.setMaxHeight(50);
         button.setPrefHeight(50);button.setPrefWidth(50);
-        button.setFont(Font.font(16));
-        button.getStyleClass().clear();
-        button.getStyleClass().addAll("top-control-button");
-        button.applyCss();
-        System.out.println("Button " + button.getText() + " classes: " + button.getStyleClass());
-        System.out.println("Button " + button.getText() + " computed style: " + button.getStyle());
     }
 
     private void styleMenuButton(MenuButton button){
         button.setMinWidth(50); button.setMaxWidth(50);
         button.setMinHeight(50); button.setMaxHeight(50);
         button.setPrefHeight(50);button.setPrefWidth(50);
-        button.setFont(Font.font(16));
-        button.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 0; -fx-background-radius: 0;");
-        
-        // hover effect
-        button.setOnMouseEntered(e->button.setStyle("-fx-background-color: #5a5a5a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 3; -fx-background-radius: 3;"));
-        button.setOnMouseExited(e->button.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 3; -fx-background-radius: 3;"));
     }
 
     private void styleAsButton(Label label){
@@ -226,23 +340,9 @@ playButton.setMinHeight(50);playButton.setMaxHeight(50);playButton.setMinWidth(5
         label.setMinWidth(50);
         label.setPrefHeight(50);label.setPrefWidth(50);
         label.setAlignment(Pos.CENTER);
-        label.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-border-color: #666; -fx-border-radius: 0; -fx-background-radius: 0;");
     }
 
-    public void reapplyStyles(){
-    // apply CSS classes to force them to pick up the new stylesheet
-        styleButton(folderButton);
-        styleMenuButton(themeButton);
-        styleButton(settingsButton);
-        styleButton(playButton);
-        styleButton(pauseButton);
-        styleButton(stopButton);
-        styleMenuButton(addTrackButton);
-        styleAsButton(timeSignatureLabel);
-        styleAsButton(bPMLabel);
-        
-        System.out.println("Reapplied styles to all buttons");
-    }
+   
     
     
     // getter for the controller to add this to layout

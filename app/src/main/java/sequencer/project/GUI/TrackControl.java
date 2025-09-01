@@ -4,45 +4,70 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import sequencer.project.model.InstrumentType;
+import sequencer.project.model.Track;
 
-public class TrackControl extends VBox { //should bve hbox...?
+public class TrackControl extends Pane { //should bve hbox...?
     private Label trackName;
-    private Label instrumentIcon;
+    private Image instrumentIcon;
     private Button muteButton;
     private Button soloButton;
     private TrackRow trackRow;
+    private Track track;
 
     private double dragStartY;
     private boolean isDragging = false;
 
+    private VBox volumeControl;
+    private Rectangle[] volumeButtons;
+    private ThemeManager tm;
+
+
+
     public TrackControl(String trackName, InstrumentType instrumentType, TrackRow trackRow){
         this.trackRow=trackRow;
-        this.setSpacing(0);
+        this.track=trackRow.getTrack();
+        this.volumeButtons=new Rectangle[9];
+        this.tm=ThemeManager.getInstance();
         this.setPadding(new Insets(0));
-        this.setAlignment(Pos.TOP_LEFT);
         this.setMinWidth(100);this.setMinHeight(100);this.setMaxWidth(100);this.setMaxHeight(100);
-        this.setStyle("-fx-background-color: #797979ff; -fx-border-color: lightgray; -fx-border-width: 0 0 1 0;");
-       
-
+        
+        setUpVolumeControls();
+        
+        
+        
         
 
-        this.trackName=new Label(trackName);
-        this.instrumentIcon=new Label(instrumentType.toString());
-
-        HBox buttonBox=new HBox();
-        buttonBox.setSpacing(5);
-        buttonBox.setAlignment(Pos.CENTER_LEFT);
+        String labelText;
+        if(trackName.contains(" ")){
+            int spaceIndex=trackName.indexOf(" ");
+            String firstPart=trackName.substring(0,spaceIndex);
+            String secondPart=trackName.substring(spaceIndex+1);
+            labelText=instrumentType.toString().toLowerCase()+"/\n"+firstPart.toLowerCase()+"\n"+secondPart.toLowerCase();
+        }else{
+            labelText=instrumentType.toString().toLowerCase()+"/\n"+trackName.toLowerCase();
+        }
+        this.trackName=new Label(labelText);
+        this.trackName.setLayoutX(15); this.trackName.setLayoutY(00);
+        VBox buttonBox=new VBox();
+        buttonBox.setSpacing(0);
+        buttonBox.setLayoutX(80);buttonBox.setLayoutY(0);
         
         // Create mute and solo buttons
         muteButton=new Button("M");
         soloButton=new Button("S");
         styleButton(muteButton);
         styleButton(soloButton);
+        style();
 
         muteButton.setOnAction(e->{
             System.out.println(trackName + " mute toggled");
@@ -57,7 +82,7 @@ public class TrackControl extends VBox { //should bve hbox...?
         buttonBox.getChildren().addAll(muteButton, soloButton);
         
         // Add all components to this VBox
-        this.getChildren().addAll(this.trackName, instrumentIcon, buttonBox);
+        this.getChildren().addAll(this.trackName, volumeControl,buttonBox);
         //mouse click on controlz
         setOnMouseClicked(this::onTrackControlClicked);
         setOnMousePressed(this::onMousePressed);
@@ -65,12 +90,102 @@ public class TrackControl extends VBox { //should bve hbox...?
         setOnMouseReleased(this::onMouseReleased);
 
     }
+    
+
+    private void setUpVolumeControls(){
+        volumeControl=new VBox();
+        ThemeManager tm=ThemeManager.getInstance();
+
+        Rectangle rectangleOne=new Rectangle(10,10);
+        rectangleOne.setFill(Color.TRANSPARENT);
+        rectangleOne.setStroke(tm.getLineColour());
+
+        Rectangle rectangleTwo=new Rectangle(10,10);
+        rectangleTwo.setFill(Color.TRANSPARENT);
+        rectangleTwo.setStroke(tm.getLineColour());
+
+        Rectangle rectangleThree=new Rectangle(10,10);
+        rectangleThree.setFill(Color.TRANSPARENT);
+        rectangleThree.setStroke(tm.getLineColour());
+
+        Rectangle rectangleFour=new Rectangle(10,10);
+        rectangleFour.setFill(Color.TRANSPARENT);
+        rectangleFour.setStroke(tm.getLineColour());
+
+        Rectangle rectangleFive=new Rectangle(10,10);
+        rectangleFive.setFill(Color.TRANSPARENT);
+        rectangleFive.setStroke(tm.getLineColour());
+
+        Rectangle rectangleSix=new Rectangle(10,10);
+        rectangleSix.setFill(Color.TRANSPARENT);
+        rectangleSix.setStroke(tm.getLineColour());
+
+        Rectangle rectangleSeven=new Rectangle(10,10);
+        rectangleSeven.setFill(Color.TRANSPARENT);
+        rectangleSeven.setStroke(tm.getLineColour());
+
+        Rectangle rectangleEight=new Rectangle(10,10);
+        rectangleEight.setFill(Color.TRANSPARENT);
+        rectangleEight.setStroke(tm.getLineColour());
+
+        Rectangle rectangleNine=new Rectangle(10,10);
+        rectangleNine.setFill(Color.TRANSPARENT);
+        rectangleNine.setStroke(tm.getLineColour());
+
+        volumeButtons[0]=rectangleOne;
+        volumeButtons[1]=rectangleTwo;
+        volumeButtons[2]=rectangleThree;
+        volumeButtons[3]=rectangleFour;
+        volumeButtons[4]=rectangleFive;
+        volumeButtons[5]=rectangleSix;
+        volumeButtons[6]=rectangleSeven;
+        volumeButtons[7]=rectangleEight;
+        volumeButtons[8]=rectangleNine;
+
+        for(int i=0;i<volumeButtons.length;i++){
+            final int volume=i+1;
+            volumeButtons[i].setOnMouseClicked(e->{track.setVolume(volume);volumeFill(volume);});
+        }
+
+        
+        volumeFill(6);
+
+
+        volumeControl.getChildren().addAll(rectangleNine,rectangleEight,rectangleSeven,rectangleSix,rectangleFive,rectangleFour,rectangleThree,rectangleTwo,rectangleOne);
+        volumeControl.setLayoutX(0);volumeControl.setLayoutY(0);        volumeControl.setLayoutX(0);volumeControl.setLayoutY(0);
+    }
+
+    public void volumeFill(int volume){
+        Color fill=tm.getVolumeFill(trackRow.getPallete());
+        for(int i=0;i<volumeButtons.length;i++){
+            if(i<volume){
+                volumeButtons[i].setFill(fill);
+            }else{
+                volumeButtons[i].setFill(Color.TRANSPARENT);
+            }
+        }
+    }
+
+    private void style(){
+        ThemeManager tm=ThemeManager.getInstance();
+        this.setStyle("-fx-background-color: " + trackRow.getColour().toString().replace("0x", "#") + "; -fx-border-color: " + tm.getLineColour().toString().replace("0x", "#") + "; -fx-border-width: 1px");
+        trackName.setFont(tm.getFont(14));
+        trackName.setStyle("-fx-text-fill: white;"); //HARDCODED, BAD, use TM< also different colours for selected style etc
+      //add check for if instrument spriteis null, use track name instead
+    }
     private void styleButton(Button button){
-        button.setMinWidth(15);
-        button.setMinHeight(15);
-        button.setMaxWidth(15);
-        button.setMaxHeight(15);
-        button.setFont(Font.font("Times New Roman", 10));
+        ThemeManager tm=ThemeManager.getInstance();
+        button.setMinWidth(20);
+        button.setMinHeight(20);
+        button.setMaxWidth(20);
+        button.setMaxHeight(20);
+        button.setFont(tm.getFont(10));
+        button.setOpacity(1);
+        /*Image graphic=new Image(getClass().getResourceAsStream("/images/"+tm.getCurrentTheme()+"_"+button.getText()+".png"));
+        ImageView image = new ImageView(graphic); 
+        image.setPreserveRatio(true);
+        button.setText("");*/
+        button.setStyle("-fx-border-color:"+tm.getLineColourToString()+"; -fx-background-color: transparent; -fx-padding: 0;-fx-text-fill: white;");
     }
 
     private void onTrackControlClicked(MouseEvent e) {

@@ -10,15 +10,15 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import sequencer.project.App;
 import sequencer.project.audio.AudioPlayer;
-import sequencer.project.model.*;
+import sequencer.project.model.Project;
 
 public class GUILauncher extends Application{
     @Override
     public void start(Stage primaryStage) {
         //get things from model
         AudioPlayer audioPlayer=App.getAudioPlayer();
-        Sequence sequence=App.getCurrentSequence();
-        GUIController gUIController = new GUIController(audioPlayer);
+        Project sequence=App.getCurrentSequence();
+        GUIController gUIController = new GUIController(audioPlayer, sequence);
         // Create the main layout container
         //BorderPane root = new BorderPane();
         //root.setPadding(new Insets(0));

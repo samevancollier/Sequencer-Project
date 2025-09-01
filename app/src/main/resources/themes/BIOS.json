@@ -1,5 +1,5 @@
 {
-  "font": "font.ttf",
+  "font": "Perfect DOS VGA 437 WIN.ttf",
   "images": {
     "playButton": "play.png",
     "pauseButton": "pause.png",
@@ -16,32 +16,39 @@
     {
       "base": "#000000",
       "highlight": "#333333",
-      "selected": "#555555"
+      "selected": "#0827F5",
+      "header": "FFFFFF",
+      "volumefill": "FFFFFF"
     },
     {
-      "base": "#1a1a1a",
-      "highlight": "#404040",
-      "selected": "#666666"
+      "base": "#000000",
+      "highlight": "#333333",
+      "selected": "#555555",
+      "header": "FFFFFF",
+      "volumefill": "FFFFFF"
     },
     {
-      "base": "#2d2d2d",
-      "highlight": "#4d4d4d",
-      "selected": "#777777"
-    },
-    {
-      "base": "#404040",
-      "highlight": "#606060",
-      "selected": "#888888"
-    },
-    {
-      "base": "#555555",
-      "highlight": "#757575",
-      "selected": "#999999"
+      "base": "#000000",
+      "highlight": "#333333",
+      "selected": "#555555",
+      "header": "FFFFFF",
+      "volumefill": "FFFFFF"
     }
   ],
   "backgroundImage": "background.png",
   "colors": {
-    "trackLines": "#333333",
+    "default":"000000",
+    "defaultfontcolour":"#FFFFFF",
+    "lines":"FFFFFF",
+    "trackLines": "#FFFFFF",
+    "oneandthreebackground":"#FFFFFF",
+    "twoandfourbackground":"#FFFFFF",
+    "sharpnotebackgroundfill": "000000",
+    "heaviestpianorollline": "000000",
+    "heavypianorollline": "#000000EE",
+    "lightpianorollline": "#000000CC",
+    "lightestpianorollline": "#000000AB",
+    "whitenotedividingline": "000000",
     "notes": {
       "base": "#ffffff",
       "highlight": "#cccccc",
@@ -53,5 +60,6 @@
     "bars13": "pianoroll_bars13.png",
     "bars24": "pianoroll_bars24.png"
   },
-  "defaultOpacity": 0.8
+  "defaultOpacity": 0.8,
+  "emptyOpacity": 0.5
 }

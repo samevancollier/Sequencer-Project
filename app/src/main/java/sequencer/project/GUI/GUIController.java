@@ -8,7 +8,11 @@ import javafx.scene.media.Track;
 import sequencer.project.audio.AudioPlayer;
 import sequencer.project.audio.MusicRoom;
 import sequencer.project.model.Block;
+
 import sequencer.project.model.InstrumentType;
+
+
+
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -16,6 +20,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+
+import sequencer.project.model.Project;
 //TO DO
 //create an EmptyTrackRow class
 //get rid of various unused things
@@ -31,19 +37,21 @@ public class GUIController {
     //back end things here
 
     private AudioPlayer audioPlayer;
+    private Project project;
 
     // selected track state
     private int selectedTrackIndex=-1; //no track selected
 
-    public GUIController(AudioPlayer audioPlayer){
+    public GUIController(AudioPlayer audioPlayer, Project project){
         this.audioPlayer=audioPlayer;
+        this.project=project;
         initializeComponents();
         setupLayout();
     }
 
     public void tests(){
         //tests
-
+        /* 
         trackContainer.addTrack("Teenage Drums", InstrumentType.DRUMS);
         trackContainer.addTrack("Teenage Drums", InstrumentType.DRUMS);
         trackContainer.addTrack("Teenage Drums", InstrumentType.DRUMS);
@@ -66,16 +74,7 @@ public class GUIController {
         
        
         ThemeManager.getInstance().setTheme("terraria");
-
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-
-        ThemeManager.getInstance().setTheme("sonic");  
-
-        ThemeManager.getInstance().setTheme("ascii");  
+        */
     }
 
     private void initializeComponents(){
@@ -89,10 +88,12 @@ public class GUIController {
         root.setPadding(Insets.EMPTY);
         
         // create top control bar
-        topControlBar=new TopControlBar(this);
+        topControlBar=new TopControlBar(this, project);
+        //pianoroll
+        PianoRoll pianoRoll=new PianoRoll();
         
         // create track container
-        trackContainer=new TrackContainer(this);
+        trackContainer=new TrackContainer(this, project, pianoRoll);
         audioPlayer.linkPlaybackCursor(trackContainer.getPlaybackCursor());     //HERE
         bindScrollPositions(trackContainer);
 
@@ -103,7 +104,6 @@ public class GUIController {
         VBox.setVgrow(trackContainer, Priority.ALWAYS);
         
         // placeholder for piano roll area
-        PianoRoll pianoRoll=new PianoRoll();
         
 
         Pane testPane = new Pane();

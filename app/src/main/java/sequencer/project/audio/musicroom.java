@@ -27,7 +27,7 @@ public class MusicRoom {
 
     public MusicRoom(){
         this.instruments = new HashMap<>();
-        instruments.put("Teenage Drums", new Instrument("Teenage Drums", InstrumentType.TEENAGE_DRUMS));
+        instruments.put("Teenage drums", new Instrument("Teenage Drums", InstrumentType.TEENAGE_DRUMS));
         instruments.put("Square", new Instrument("Square", InstrumentType.SQUARE));
     }
 

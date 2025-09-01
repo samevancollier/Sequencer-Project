@@ -1,5 +1,6 @@
 package sequencer.project.GUI;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.Cursor;
@@ -27,6 +28,7 @@ public class BlockNode extends Pane {
     private boolean isSelected=false;//idk
     private boolean isEmpty=true;
     private TrackContainer trackContainer;
+    private ArrayList<GraphicNote> graphicNotes;
     private Canvas noteCanvas;
     private double DRAG_ZONE=10; //area where dragging happens
     private double BLOCK_HEIGHT=100;
@@ -41,7 +43,7 @@ public class BlockNode extends Pane {
         this.clipArea=clipArea;
         this.blockIndex=blockIndex;
         this.block=block;
-        this.BLOCK_COLOUR=clipArea.getTrackRow().getColour();
+        this.graphicNotes=new ArrayList<GraphicNote>();
         this.trackContainer=clipArea.getTrackRow().getContainer();
         width=clipArea.getBarWidthInPixels();
 
@@ -53,18 +55,19 @@ public class BlockNode extends Pane {
     
 
     private void initializeVisuals(){
+        
         rect=new Rectangle();
         rect.setWidth(BLOCK_WIDTH);
         rect.setHeight(BLOCK_HEIGHT);
-        rect.setFill(BLOCK_COLOUR);
-        rect.setStroke(BLOCK_BORDER_COLOUR);
-        rect.setStrokeWidth(1);
+        
+        
+        
 
         header=new Rectangle();
         header.setWidth(BLOCK_WIDTH);
         header.setHeight(BLOCK_HEIGHT/5);
-        header.setFill(HEADER_COLOUR);
-
+        
+        styleNormal();
         noteCanvas=new Canvas(BLOCK_WIDTH,BLOCK_HEIGHT);
 
 
@@ -76,6 +79,36 @@ public class BlockNode extends Pane {
         setPrefWidth(BLOCK_WIDTH);
     }
 
+    public void styleNormal(){
+        int pallete=clipArea.getTrackRow().getPallete();
+        ThemeManager tm=ThemeManager.getInstance();
+        rect.setStroke(tm.getLineColour());
+        rect.setFill(tm.getTrackColourBase(pallete));
+        rect.setOpacity(1);header.setOpacity(1);
+        rect.setStrokeWidth(1); //DEFINE IN JSON NOT HERWE!
+        header.setFill(tm.getHeaderColour(pallete));
+        
+    }
+
+    public void styleEmpty(){
+        int pallete=clipArea.getTrackRow().getPallete();
+        ThemeManager tm=ThemeManager.getInstance();
+        rect.setStroke(tm.getLineColour());
+        rect.setOpacity(0.5);
+        rect.setStrokeWidth(1);
+        header.setOpacity(0.8);
+    }
+
+    public void styleSelected(){
+        int pallete=clipArea.getTrackRow().getPallete();
+        ThemeManager tm=ThemeManager.getInstance();
+        rect.setStroke(tm.getLineColour());
+        rect.setFill(tm.getTrackColourSelected(pallete));
+        rect.setOpacity(1);header.setOpacity(1);
+        rect.setStrokeWidth(1);
+        header.setFill(tm.getHeaderColour(pallete));
+    }   
+
     public void empty(){
         List<Note> notesToDelete=block.getAllNotes();
         for(Note deleting : notesToDelete){
@@ -85,6 +118,7 @@ public class BlockNode extends Pane {
         isEmpty=true; //for appearance
     }
     private void drawNotes(){
+        ThemeManager tm=ThemeManager.getInstance();
         int range=block.getRange();
         int noteThicknessInPixels=5; //replace with algorithim for calculating thickness based on range later
         List<Note> notesToDraw=block.getAllNotes();
@@ -93,7 +127,7 @@ public class BlockNode extends Pane {
         GraphicsContext gc=noteCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
 
-        gc.setFill(NOTE_COLOUR);
+        gc.setFill(Color.web(tm.getNotesBase()));
         for(Note noteBeingDrawn : notesToDraw){
             int startX=noteBeingDrawn.getStep();
             int startY=noteBeingDrawn.getPitch()+(noteThicknessInPixels/2);
@@ -119,23 +153,21 @@ public class BlockNode extends Pane {
         dragStartX=e.getSceneX();
         dragStartY=e.getSceneY();
         isDragging=false;
-
         //extending rightwardcheck
-
         double mouseX=e.getX();
         isDraggingRight=(mouseX>=BLOCK_WIDTH-DRAG_ZONE);
-        
-        
+    
         if(!isDraggingRight){
-            toFront();
-            boolean isShiftHeld=e.isShiftDown();
-            trackContainer.selectBlock(this,isShiftHeld);
+            //check for double click first
+            if(e.getClickCount()==2){
+                trackContainer.getPianoRoll().setOpenBlock(this);
+            }else{
+                toFront();
+                boolean isShiftHeld=e.isShiftDown();
+                trackContainer.selectBlock(this,isShiftHeld);
+            }
         }
-        
-        
-        
-        
-        
+    
         e.consume();
     }
 
@@ -269,11 +301,9 @@ public class BlockNode extends Pane {
     
     public void setSelected(boolean selected){
         if(selected){
-            rect.setFill(BLOCK_SELECTED_COLOUR);
-            rect.setStrokeWidth(2);
+            styleSelected();
         }else{
-            rect.setFill(BLOCK_COLOUR);
-            rect.setStrokeWidth(1);
+            styleNormal();
         }
     }
     public void addNote(int step, int pitch, int velocity, int length){ //stupid, dont use anymore
@@ -301,6 +331,6 @@ public class BlockNode extends Pane {
     }
     public int getIndex(){return blockIndex;}
     public Block getBlock(){return block;}
-    
+    public ArrayList<GraphicNote> getGraphicNotes(){return graphicNotes;}
     
 }

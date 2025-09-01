@@ -49,6 +49,7 @@ public class Note {
         }
         this.velocity = newVelocity;
     }
+    public void setTrack(Track track){this.track=track;}
     //here i will need something to check if notes overlap, as well as something for copying notes
     public void transpose(int semitones){
         setPitch(pitch + semitones);

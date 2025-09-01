@@ -17,7 +17,7 @@ public class Block {
 
     private int highestNote=0; private int lowestNote=127; //for display
     
-    public Block(int startStep, TrackRow trackRow){ //largely exactly duplucated from Track, track becomes container for blocks, not implemented yet
+    public Block(int startStep, TrackRow trackRow){ //largely exactly duplucated from Track, track becomes container for blocks, not implemented yet dumb af honestly
         this.startStep=startStep;
         this.trackRow=trackRow;
         this.track=this.trackRow.getTrack();
@@ -59,6 +59,7 @@ public class Block {
             blockedNotes.computeIfAbsent(pitch, k->new ArrayList<>()).add(i);
         }
         System.out.println("note added:" + step + " " + pitch + " " + newNote.getLength());
+        newNote.setTrack(track);
     }
     
     
@@ -114,5 +115,9 @@ public class Block {
 
     public int getRange(){
         return highestNote-lowestNote;
+    }
+
+    public List<Note> getNotesAtStep(int step){
+        return notes.get(step); // returns null if no notes at this step
     }
 }

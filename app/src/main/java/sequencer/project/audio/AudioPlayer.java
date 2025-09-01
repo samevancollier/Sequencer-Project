@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class AudioPlayer {
-    private Sequence sequence;
+    private Project sequence;
     private AudioEngine audioEngine; 
     private volatile boolean isPlaying = false;
     private volatile boolean isPaused = false;
@@ -27,7 +27,7 @@ public class AudioPlayer {
         
         
     
-    public AudioPlayer(Sequence sequence, AudioEngine audioEngine) {
+    public AudioPlayer(Project sequence, AudioEngine audioEngine) {
         this.sequence = sequence;
         this.audioEngine=audioEngine; // Initialize the mixing engine
     }
@@ -158,7 +158,7 @@ public class AudioPlayer {
         for (Track track : sequence.getTracks()) {
             Instrument instrument = track.getInstrument();
             InstrumentType instrumentType = instrument.getInstrumentType();
-            List<Note> notes = track.getNotes(currentStep);
+            List<Note> notes = track.getNotesAtStep(currentStep);
             
             if (notes != null) {
                 for (Note note : notes) {

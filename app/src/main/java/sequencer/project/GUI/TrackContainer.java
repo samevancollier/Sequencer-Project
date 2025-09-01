@@ -3,6 +3,8 @@ package sequencer.project.GUI;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -14,8 +16,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Track;
 import sequencer.project.model.InstrumentType;
+import sequencer.project.model.Project;
 
 public class TrackContainer extends ScrollPane {
     private static final int MAX_TRACKS=8;
@@ -51,13 +53,18 @@ public class TrackContainer extends ScrollPane {
 
     private int zoom;
 
+    private Project project;
+    private PianoRoll pianoRoll;
+
     // shared scroll position property that all tracks bind to
     private DoubleProperty masterHScroll=new SimpleDoubleProperty(0.0);
     
-    public TrackContainer(GUIController controller){
+    public TrackContainer(GUIController controller, Project project, PianoRoll pianoRoll ){
         super();
         zoom=1;
         this.controller=controller;
+        this.project=project;
+        this.pianoRoll=pianoRoll;
         this.tracks=new ArrayList<>();
         
         
@@ -73,6 +80,7 @@ public class TrackContainer extends ScrollPane {
                 event.consume();
             }
         });
+        /* 
         Platform.runLater(() -> {
             System.out.println("=== TrackContainer Layout Debug ===");
             System.out.println("TrackContainer width: " + getWidth());
@@ -83,7 +91,7 @@ public class TrackContainer extends ScrollPane {
             System.out.println("Viewport width: " + getViewportBounds().getWidth());
             System.out.println("Can scroll horizontally: " + (getContent().getBoundsInLocal().getWidth() > getViewportBounds().getWidth()));
         });
-        
+        */
     } 
     private void initialiseplaybackCursor(){
         playbackCursorLayer=new ScrollPane();
@@ -219,6 +227,7 @@ public class TrackContainer extends ScrollPane {
         newTrack.getClipArea().createBlock();
         tracks.add(newTrack);
         trackVBox.getChildren().add(newTrack);
+        project.addTrack(newTrack.getTrack());
 
         ScrollPane newScrollPane = newTrack.getClipScrollPane();
         //dont show bars
@@ -228,7 +237,7 @@ public class TrackContainer extends ScrollPane {
         newScrollPane.hvalueProperty().bindBidirectional(masterHScroll);//bind scroll positions
         updateAllTrackWidths();
         
-        newTrack.getClipArea().drawLines();  //why doesnt it doo that 
+        //newTrack.getClipArea().drawLines();  //why doesnt it doo that 
         trackScrollPanes.add(newScrollPane);  
         playbackCursor.updateHeight();
         
@@ -253,6 +262,8 @@ public class TrackContainer extends ScrollPane {
         
         //remove from gui
         trackVBox.getChildren().remove(trackToRemove);
+        //remove from project
+        project.removeTrack(trackIndex);
         //update tha cursor
         playbackCursor.updateHeight();
         //update track indices for remaining tracks
@@ -374,4 +385,5 @@ public class TrackContainer extends ScrollPane {
     public int getNumOfTracks(){return tracks.size();}
     public PlaybackCursor getPlaybackCursor(){return playbackCursor;}
     public double getBarWidthInPixels(){return barWidthInPixels;}
+    public PianoRoll getPianoRoll(){return pianoRoll;}
 }

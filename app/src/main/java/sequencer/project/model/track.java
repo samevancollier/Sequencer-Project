@@ -13,10 +13,12 @@ public class Track {
     private int length;
     private Instrument instrument;
     private Map<Integer, List<Note>> notes; //grid, basically
-    private Sequence sequence; //owning sequence
+    private Project sequence; //owning sequence
     private MusicRoom musicRoom; //seems weird to have it here, but ok
     private boolean muted = false;
     private boolean soloed = false;
+    private ArrayList<Block> blocks;
+    private static final int STEPS_PER_BLOCK=256;
     private int volume; //volume 0-12
     private Map<Integer, List<Integer>> blockedNotes = new HashMap<>();
     AudioEffect[] fX = new AudioEffect[4];
@@ -28,6 +30,7 @@ public class Track {
         this.instrument = musicRoom.getInstrument(chosenInstrument);
         this.notes = new HashMap<>();
         this.trackNumber = trackNumber;
+        this.blocks=new ArrayList<Block>();
         
     }
     //add notes
@@ -53,6 +56,20 @@ public class Track {
             }
         }
     }
+
+    public void swapBlocks(int index1,int index2){
+        Collections.swap(blocks,index1,index2);
+    }
+
+    public List<Note> getNotesAtStep(int absoluteStep){         //HERE
+        int blockIndex=absoluteStep/STEPS_PER_BLOCK;
+        int relativeStep=absoluteStep%STEPS_PER_BLOCK;
+        
+        if(blockIndex>=0 && blockIndex<blocks.size()){
+            return blocks.get(blockIndex).getNotesAtStep(relativeStep);
+        }
+        return null; 
+    }                               
     private Boolean hasOverlappingNote(int startStep, int pitch, int length){ //turned out to be unneccesary 
         int stopStep=startStep+length;
         for(int i=startStep;i<stopStep;i++){
@@ -76,19 +93,23 @@ public class Track {
         return sample;
     }
     public void addFX(AudioEffect effect, int fXnum){
+        System.out.println("FX ADDED");
         fX[fXnum]=effect;
     }
     public void removeFX(int fXNum){
+        System.out.println("FX REMOVED");
+
         fX[fXNum]=null;
     }
         
     
     public void setVolume(int volume){
+        System.out.println("VOLUME SET: "+volume);
         this.volume = volume;
     }
     public float getVolumeMultiplier(){
         if(muted){return 0.0f;}
-        return volume/12.0f;
+        return volume/9.0f;
     }
     public AudioEffect[] getFX(){
         return fX;
@@ -111,6 +132,8 @@ public class Track {
     public int getTrackNumber(){
         return trackNumber;
     }
+
+    public ArrayList<Block> getBlocks(){return blocks;}
 
     //setter
     public void setTrackNumber(int newTrackNumber){

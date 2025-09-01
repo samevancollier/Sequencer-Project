@@ -41,7 +41,7 @@ public class ClipArea extends Pane {
     private int extraSpace=4000;
     
     
-    public ClipArea(TrackRow trackRow){
+    public ClipArea(TrackRow trackRow, Track track){
         this.trackRow=trackRow;
         this.track=trackRow.getTrack();
         this.blockNodes=new ArrayList<>();
@@ -50,6 +50,7 @@ public class ClipArea extends Pane {
         this.colour=trackRow.getColour();
         this.background=trackRow.getContainer().getController().getBackground();
         this.controller=trackContainer.getController();
+        this.track=track;
         
         initializeCanvas(); 
         setupMouseHandlers();
@@ -71,7 +72,7 @@ public class ClipArea extends Pane {
         
         
         setStyle("-fx-background-color: transparent;");
-        drawLines();
+        //drawLines();
     }
     
     private void setupMouseHandlers(){
@@ -113,7 +114,7 @@ public class ClipArea extends Pane {
         //System.out.println("New width is: "+getWidth());
         
         refreshBlocks();
-        drawLines();
+        //drawLines();
     }
     
     public void drawLines(){
@@ -172,6 +173,7 @@ public class ClipArea extends Pane {
         
         
         trackRow.getContainer().updateAllTrackWidths();
+        track.swapBlocks(fromIndex, toIndex);
     }
 
     
@@ -200,13 +202,14 @@ public class ClipArea extends Pane {
         blocks.add(newBlock);
         BlockNode newBlockNode=new BlockNode(this, blockNodes.size(), newBlock);
         blockNodes.add(newBlockNode);
+        track.getBlocks().add(newBlock); //HERE
         
         getChildren().add(newBlockNode);
 
         trackRow.getContainer().updateAllTrackWidths();
         setWidth(barWidthInPixels*blocks.size()+extraSpace);
         refreshBlocks();
-        drawLines();
+        //drawLines();
     }
     
     public void removeBlock(int blockIndex){
@@ -220,7 +223,7 @@ public class ClipArea extends Pane {
             
             trackRow.getContainer().updateAllTrackWidths();
             refreshBlocks();
-            drawLines();
+           // drawLines();
         }
     }
     
@@ -315,4 +318,6 @@ public class ClipArea extends Pane {
     public TrackRow getTrackRow(){return trackRow;}
     public Block getSpecificBlock(int blockIndex){return blocks.get(blockIndex);}
     public BlockNode getSpecificBlockNode(int blockIndex){return blockNodes.get(blockIndex);}
+
+    public Track getTrack(){return track;}
 }
