@@ -116,6 +116,7 @@ public class Block {
     public int getRange(){
         return highestNote-lowestNote;
     }
+    public int getLowestNote(){return lowestNote;}
 
     public List<Note> getNotesAtStep(int step){
         return notes.get(step); // returns null if no notes at this step

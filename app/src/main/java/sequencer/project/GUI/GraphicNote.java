@@ -170,6 +170,7 @@ public class GraphicNote extends Rectangle{
         List<GraphicNote> selectedNotes = new ArrayList<>(pianoRoll.getSelectedNotes());
         if(isDraggingLeft||isDraggingRight||isDraggingBody){
            // List<GraphicNote> selectedNotes=pianoRoll.getSelectedNotes();
+            
             double subdivisionWidth=pianoRoll.getSubdivisionWidth();
         
             // collect target positions for all notes
@@ -205,7 +206,9 @@ public class GraphicNote extends Rectangle{
         
             // update all notes and handle collisions/bounds
             for(int i=selectedNotes.size()-1;i>=0;i--){
+                
                 GraphicNote note=selectedNotes.get(i);
+                int originalStep=note.getNote().getStep();
                 double quantizedX=targetXs.get(i);
                 double quantizedY=targetYs.get(i);
                 double quantizedWidth=targetWidths.get(i);
@@ -241,6 +244,9 @@ public class GraphicNote extends Rectangle{
                 note.getNote().setPitch(pitch);
                 System.out.println("NEW LENGTH:" + length);
                 note.getNote().setLength(length);
+
+                pianoRoll.getBlockNode().getBlock().removeNote(originalStep, note.getNote());
+                pianoRoll.getBlockNode().addNote(note.getNote());
             }
         
             Platform.runLater(() -> {
@@ -253,18 +259,18 @@ public class GraphicNote extends Rectangle{
     }
     public void setNote(Note note){this.note=note;}
 
-    public void move(KeyEvent e){           //ADD BOUNDS CHECKS
+   public void move(KeyEvent e){           //ADD BOUNDS CHECKS
         KeyCode k=e.getCode();
         double subdivisionWidth=pianoRoll.getSubdivisionWidth();
+        int originalStep=note.getStep();
+        
         if(k==KeyCode.DOWN && note.getPitch()>0){
-            
             double y=getY();
             System.out.println("y= "+y);
             setY(y+keyHeight);
             System.out.println("y= "+getY());
             note.setPitch(note.getPitch()-1);
             System.out.println("NEWpitch: " + note.getPitch());
-
         } else if (k==KeyCode.UP && note.getPitch()<119){
             double y=getY();
             setY(y-keyHeight);
@@ -273,15 +279,20 @@ public class GraphicNote extends Rectangle{
         } else if (k==KeyCode.LEFT && note.getStep()>0){
             double x=getX();
             setX(x-subdivisionWidth);
-            note.setPosition(note.getStep()-pianoRoll.subdivisionToStep());                 //WRONG, NEEDs TO BE BASED ON RESOLUTION!
+            note.setPosition(note.getStep()-pianoRoll.subdivisionToStep());
             System.out.println("NEWSTEP: " + note.getStep());
+            // update block storage
+            pianoRoll.getBlockNode().getBlock().removeNote(originalStep, note);
+            pianoRoll.getBlockNode().addNote(note);
         } else if (k==KeyCode.RIGHT && note.getStep()<255){
             double x=getX();
             setX(x+subdivisionWidth);
             note.setPosition(note.getStep()+pianoRoll.subdivisionToStep());
             System.out.println("NEWSTEP: " + note.getStep());
+            // update block storage
+            pianoRoll.getBlockNode().getBlock().removeNote(originalStep, note);
+            pianoRoll.getBlockNode().addNote(note);
         }
-        
     }
 
     public Note getNote(){return note;}

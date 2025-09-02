@@ -26,10 +26,11 @@ public class MusicRoom {
     private String basicPath = "app/src/main/resources/samples/";
 
     public MusicRoom(){
-        this.instruments = new HashMap<>();
-        instruments.put("Teenage drums", new Instrument("Teenage Drums", InstrumentType.TEENAGE_DRUMS));
-        instruments.put("Square", new Instrument("Square", InstrumentType.SQUARE));
-    }
+    this.instruments = new HashMap<>();
+    instruments.put("Teenage Drums", new Instrument("Teenage Drums", InstrumentType.TEENAGE_DRUMS));
+    instruments.put("Square", new Instrument("Square", InstrumentType.SQUARE));
+    instruments.put("Bzz", new Instrument("Bzz", InstrumentType.BZZ));
+}
 
     public Instrument getInstrument(String instrumentName){
         try {

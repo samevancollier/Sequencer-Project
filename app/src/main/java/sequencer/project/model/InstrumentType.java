@@ -13,7 +13,8 @@ public enum InstrumentType {
     TEENAGE_DRUMS("DRUMS"),
     
     // synth subcategories
-    SQUARE("SYNTH");
+    SQUARE("SYNTH"),
+    BZZ("SYNTH");
     
     
     private final String mainCategory;

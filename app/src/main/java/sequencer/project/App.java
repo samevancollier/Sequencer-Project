@@ -116,11 +116,12 @@ import sequencer.project.GUI.*;
 
 //basic fx area functionality               :)
 //bpm control                               :)
-//volume control
-//volume animation
-//notes drawn in blocknode the right way
-//change track instrument
+//volume control                            :)
+//volume animation                          :)
+//notes drawn in blocknode the right way    :)
+//change track instrument                   :)
 //style cursor
+//fix note/piano roll reemergent bugs       :)
 
 //ONE: FIX LINE ISSUES
 //TWO: FX AREA

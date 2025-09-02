@@ -125,39 +125,40 @@ public class AudioEngine {
     
     // Take one sample and add its audio data to the mix buffer
     private void mixSampleIntoBuffer(ActiveSample sample, byte[] buffer) {
-        // Get the raw audio data from this sample
         byte[] sampleData = sample.getData();
-        // Get current playback position within this sample
         int samplePos = sample.getPosition();
-        // Calculate how many bytes
         int samplesToMix = Math.min(buffer.length, sampleData.length - samplePos);
         float volumeMultiplier = sample.getVolumeMultiplier();
-        // Mix the audio process 2 bytes at a time (16-bit audio = 2 bytes per sample)
+        float peakAmplitude = 0.0f;
+        
         for (int i = 0; i < samplesToMix; i += 2) {
-            // don't read past the end of the sample data
             if (samplePos + i + 1 < sampleData.length) {
-                // Convert 2 bytes from buffer to a 16-bit signed integer
-                // Byte 1: low byte, Byte 2: high byte (little-endian format)
                 short bufferSample = (short) ((buffer[i + 1] << 8) | (buffer[i] & 0xFF));
-                // Convert 2 bytes from sample to a 16-bit signed integer
                 short sampleValue = (short) ((sampleData[samplePos + i + 1] << 8) | (sampleData[samplePos + i] & 0xFF));
-                sampleValue = sample.getTrack().processEffects(sampleValue);
-                // Apply volume scaling to the sample
-                sampleValue = (short) (sampleValue * volumeMultiplier);
+                // track amplitude
+                float amplitude = Math.abs(sampleValue) / 32768.0f;
+                peakAmplitude = Math.max(peakAmplitude, amplitude);
 
-                // Add the two audio signals together 
-                int mixed = bufferSample + sampleValue;
-                // Clamp the result to prevent distortion from overflow
-                mixed = Math.max(-32768, Math.min(32767, mixed));
+                sampleValue = sample.getTrack().processEffects(sampleValue);
                 
-                // Convert the mixed result back to 2 bytes and store in buffer
-                buffer[i] = (byte) (mixed & 0xFF);         // Low byte
-                buffer[i + 1] = (byte) ((mixed >> 8) & 0xFF); // High byte
+                // apply volume scaling with boost, but clamp to prevent overflow
+                float scaledSample = sampleValue * volumeMultiplier * 5.0f;
+                scaledSample = Math.max(-32768, Math.min(32767, scaledSample)); // clamp before casting
+                sampleValue = (short) scaledSample;
+                
+                
+                
+                // mix the audio
+                int mixed = bufferSample + sampleValue;
+                mixed = Math.max(-32768, Math.min(32767, mixed));
+            
+                buffer[i] = (byte) (mixed & 0xFF);
+                buffer[i + 1] = (byte) ((mixed >> 8) & 0xFF);
             }
         }
-        
-        // Move this sample's playback position forward by the amount  just processed
+    
         sample.advance(samplesToMix);
+        sample.getTrack().updateAmplitude(peakAmplitude);
     }
     
     // Main method called by your sequencer to play a note (implements AudioEngine interface)

@@ -1,9 +1,21 @@
 package sequencer.project.GUI;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -13,7 +25,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
+import sequencer.project.audio.MusicRoom;
 import sequencer.project.model.InstrumentType;
+import sequencer.project.model.Instrument;
+
 import sequencer.project.model.Track;
 
 public class TrackControl extends Pane { //should bve hbox...?
@@ -21,15 +37,25 @@ public class TrackControl extends Pane { //should bve hbox...?
     private Image instrumentIcon;
     private Button muteButton;
     private Button soloButton;
+    private MenuButton instrumentButton;
     private TrackRow trackRow;
     private Track track;
 
     private double dragStartY;
     private boolean isDragging = false;
 
+    private String labelText;
+
     private VBox volumeControl;
     private Rectangle[] volumeButtons;
+    private Timeline visualiserTimer;
     private ThemeManager tm;
+
+    private Color lowVolumeColour;
+    private Color midVolumeColour;
+    private Color highVolumeColour;
+    private Color volumeFillColour;
+
 
 
 
@@ -47,7 +73,7 @@ public class TrackControl extends Pane { //should bve hbox...?
         
         
 
-        String labelText;
+
         if(trackName.contains(" ")){
             int spaceIndex=trackName.indexOf(" ");
             String firstPart=trackName.substring(0,spaceIndex);
@@ -57,17 +83,23 @@ public class TrackControl extends Pane { //should bve hbox...?
             labelText=instrumentType.toString().toLowerCase()+"/\n"+trackName.toLowerCase();
         }
         this.trackName=new Label(labelText);
-        this.trackName.setLayoutX(15); this.trackName.setLayoutY(00);
-        VBox buttonBox=new VBox();
+        this.trackName.setLayoutX(16); this.trackName.setLayoutY(00);
+        HBox buttonBox=new HBox();
         buttonBox.setSpacing(0);
-        buttonBox.setLayoutX(80);buttonBox.setLayoutY(0);
+        buttonBox.setLayoutX(60);buttonBox.setLayoutY(80);
+
+        
+
         
         // Create mute and solo buttons
         muteButton=new Button("M");
         soloButton=new Button("S");
-        styleButton(muteButton);
-        styleButton(soloButton);
+        instrumentButton=new MenuButton("*");
+        instrumentButton.setLayoutX(88);
+        instrumentButton.setLayoutY(0);
         style();
+
+        setUpInstrumentButton();
 
         muteButton.setOnAction(e->{
             System.out.println(trackName + " mute toggled");
@@ -82,7 +114,7 @@ public class TrackControl extends Pane { //should bve hbox...?
         buttonBox.getChildren().addAll(muteButton, soloButton);
         
         // Add all components to this VBox
-        this.getChildren().addAll(this.trackName, volumeControl,buttonBox);
+        this.getChildren().addAll(instrumentButton,this.trackName, volumeControl,buttonBox );
         //mouse click on controlz
         setOnMouseClicked(this::onTrackControlClicked);
         setOnMousePressed(this::onMousePressed);
@@ -90,7 +122,58 @@ public class TrackControl extends Pane { //should bve hbox...?
         setOnMouseReleased(this::onMouseReleased);
 
     }
-    
+
+    private void newName(Instrument newInstrument){
+        String labelText;
+        String newName=newInstrument.getName();
+        if(newName.contains(" ")){
+            int spaceIndex=newName.indexOf(" ");
+            String firstPart=newName.substring(0,spaceIndex);
+            String secondPart=newName.substring(spaceIndex+1);
+            labelText=newInstrument.getInstrumentType().getMainCategory().toLowerCase()+"/\n"+firstPart.toLowerCase()+"\n"+secondPart.toLowerCase();
+        }else{
+            labelText=newInstrument.getInstrumentType().getMainCategory().toLowerCase()+"/\n"+newName.toLowerCase();
+        }
+        this.trackName.setText(labelText);
+    }
+    private void setUpInstrumentButton(){                                     //sigificantly more trouble than worth
+        Map<String,Menu> categoryMenus=new HashMap<>();
+        for(InstrumentType i : InstrumentType.values()){
+            if(i.isMainCategory()){
+                Menu newMenu=new Menu(i.toString());
+                categoryMenus.put(i.toString(),newMenu);
+                instrumentButton.getItems().add(newMenu);
+            }
+        }
+        for(InstrumentType i : InstrumentType.values()){
+            if(!(i.isMainCategory())){
+                MenuItem newMenuItem=new MenuItem(i.toString());
+                newMenuItem.setOnAction(e->{
+   String instrumentKey=i.toString();
+   if(instrumentKey.contains("_")){
+       String[] words=instrumentKey.split("_");
+       StringBuilder result=new StringBuilder();
+       for(int j=0;j<words.length;j++){
+           result.append(words[j].charAt(0)).append(words[j].substring(1).toLowerCase());
+           if(j<words.length-1) result.append(" ");
+       }
+       instrumentKey=result.toString();
+   }else{
+       instrumentKey=instrumentKey.charAt(0) + instrumentKey.substring(1).toLowerCase();
+   }
+   track.setInstrument(MusicRoom.getInstance().getInstrument(instrumentKey));
+   newName(track.getInstrument());
+});
+                
+                String parentCategoryName=i.getMainCategory().toString(); 
+                Menu parentMenu=categoryMenus.get(parentCategoryName);
+                if(parentMenu!=null){
+                    parentMenu.getItems().add(newMenuItem);
+                }
+            }
+        }
+    }
+
 
     private void setUpVolumeControls(){
         volumeControl=new VBox();
@@ -153,6 +236,7 @@ public class TrackControl extends Pane { //should bve hbox...?
 
         volumeControl.getChildren().addAll(rectangleNine,rectangleEight,rectangleSeven,rectangleSix,rectangleFive,rectangleFour,rectangleThree,rectangleTwo,rectangleOne);
         volumeControl.setLayoutX(0);volumeControl.setLayoutY(0);        volumeControl.setLayoutX(0);volumeControl.setLayoutY(0);
+        initaliseVolumeAnimation();
     }
 
     public void volumeFill(int volume){
@@ -166,11 +250,78 @@ public class TrackControl extends Pane { //should bve hbox...?
         }
     }
 
+    private void initaliseVolumeAnimation(){
+        visualiserTimer = new Timeline(new KeyFrame(Duration.millis(50), e -> updateVisualiser()));
+        visualiserTimer.setCycleCount(Timeline.INDEFINITE);
+        visualiserTimer.play();
+    }
+
+    private void updateVisualiser(){
+        if(track == null) return;
+        
+        // force amplitude decay every updat
+        track.decayAmplitude();
+        
+        int volume = track.getVolume();
+        float amplitude = track.getCurrentAmplitude();
+        
+
+        //System.out.println("Amplitude: " + amplitude + ", Volume: " + volume);
+        
+        int litRectangles = Math.round(amplitude * 200); // try higher sensitivity
+        litRectangles = Math.min(litRectangles, volume); // cap at volume setting
+        
+        //System.out.println("Lit rectangles: " + litRectangles);
+     
+        for(int i = 0; i < 9; i++){
+            if(i < volume && i < litRectangles){
+               
+                if(i < 6){
+                    volumeButtons[i].setFill(lowVolumeColour); 
+                }else if(i < 8){
+                    volumeButtons[i].setFill(midVolumeColour);
+                }else{
+                    volumeButtons[i].setFill(highVolumeColour); 
+                }
+            }else if(i<volume){
+                volumeButtons[i].setFill(volumeFillColour); 
+            }else{
+                volumeButtons[i].setFill(Color.TRANSPARENT);
+            }
+               
+        }
+    }
+    
+    
+
     private void style(){
         ThemeManager tm=ThemeManager.getInstance();
         this.setStyle("-fx-background-color: " + trackRow.getColour().toString().replace("0x", "#") + "; -fx-border-color: " + tm.getLineColour().toString().replace("0x", "#") + "; -fx-border-width: 1px");
         trackName.setFont(tm.getFont(14));
         trackName.setStyle("-fx-text-fill: white;"); //HARDCODED, BAD, use TM< also different colours for selected style etc
+        highVolumeColour=tm.getHighVolumeColour(trackRow.getPallete());
+        midVolumeColour=tm.getMidVolumeColour(trackRow.getPallete());
+        lowVolumeColour=tm.getLowVolumeColour(trackRow.getPallete());
+        volumeFillColour=tm.getVolumeFill(trackRow.getPallete());
+        instrumentButton.setPrefHeight(10);instrumentButton.setPrefWidth(10);
+        instrumentButton.setFont(tm.getFont(4));
+        instrumentButton.setMinWidth(12);
+        instrumentButton.setMinHeight(12);
+        instrumentButton.setMaxWidth(12);
+        instrumentButton.setMaxHeight(12);
+        instrumentButton.setPrefHeight(12);
+        instrumentButton.setPrefWidth(12);
+        instrumentButton.setStyle("-fx-border-color:"+tm.getLineColourToString()+"; -fx-background-color: transparent; -fx-padding: 0; -fx-text-fill: white; -fx-opacity: 1.0;");
+        Platform.runLater(() -> {
+            Node arrow = instrumentButton.lookup(".arrow-button");
+            if(arrow != null) {
+                arrow.setVisible(false);
+                arrow.setManaged(false);
+                instrumentButton.setText("*");
+            }
+        });
+        styleButton(muteButton);styleButton(soloButton);
+
       //add check for if instrument spriteis null, use track name instead
     }
     private void styleButton(Button button){

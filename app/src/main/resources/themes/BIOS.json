@@ -18,21 +18,31 @@
       "highlight": "#333333",
       "selected": "#0827F5",
       "header": "FFFFFF",
-      "volumefill": "FFFFFF"
+      "volumefill": "FFFFFF",
+      "lowvolume": "#0827F5",
+      "midvolume": "#F58E08",
+      "highvolume": "#F50808"
+
     },
     {
       "base": "#000000",
       "highlight": "#333333",
       "selected": "#555555",
       "header": "FFFFFF",
-      "volumefill": "FFFFFF"
+      "volumefill": "FFFFFF",
+      "lowvolume": "#0827F5",
+      "midvolume": "#F58E08",
+      "highvolume": "#F50808"
     },
     {
       "base": "#000000",
       "highlight": "#333333",
       "selected": "#555555",
       "header": "FFFFFF",
-      "volumefill": "FFFFFF"
+      "volumefill": "FFFFFF",
+      "lowvolume": "#0827F5",
+      "midvolume": "#F58E08",
+      "highvolume": "#F50808"
     }
   ],
   "backgroundImage": "background.png",

@@ -32,6 +32,7 @@ public class BlockNode extends Pane {
     private Canvas noteCanvas;
     private double DRAG_ZONE=10; //area where dragging happens
     private double BLOCK_HEIGHT=100;
+    private double HEADER_HEIGHT=20;
     private double BLOCK_WIDTH=200;
     private Color BLOCK_COLOUR;                     //make all these into some kind of enum for associated colours
     private Color HEADER_COLOUR=Color.AQUAMARINE;
@@ -58,14 +59,15 @@ public class BlockNode extends Pane {
         
         rect=new Rectangle();
         rect.setWidth(BLOCK_WIDTH);
-        rect.setHeight(BLOCK_HEIGHT);
+        rect.setHeight(BLOCK_HEIGHT-HEADER_HEIGHT);
+        rect.setY(HEADER_HEIGHT);
         
         
         
 
         header=new Rectangle();
         header.setWidth(BLOCK_WIDTH);
-        header.setHeight(BLOCK_HEIGHT/5);
+        header.setHeight(HEADER_HEIGHT);
         
         styleNormal();
         noteCanvas=new Canvas(BLOCK_WIDTH,BLOCK_HEIGHT);
@@ -117,24 +119,40 @@ public class BlockNode extends Pane {
         drawNotes();
         isEmpty=true; //for appearance
     }
-    private void drawNotes(){
+    private void drawNotes(){ //janky due to slightly too large clip area
         ThemeManager tm=ThemeManager.getInstance();
         int range=block.getRange();
-        int noteThicknessInPixels=5; //replace with algorithim for calculating thickness based on range later
+        
+        //calculate note thickness based on range
+        int noteThicknessInPixels=(int)Math.max(1,Math.min(8,(BLOCK_HEIGHT-HEADER_HEIGHT)/(range+1)));
+        
         List<Note> notesToDraw=block.getAllNotes();
-
         
         GraphicsContext gc=noteCanvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
-
+        gc.clearRect(0,0,BLOCK_WIDTH,BLOCK_HEIGHT);
         gc.setFill(Color.web(tm.getNotesBase()));
+        
         for(Note noteBeingDrawn : notesToDraw){
-            int startX=noteBeingDrawn.getStep();
-            int startY=noteBeingDrawn.getPitch()+(noteThicknessInPixels/2);
-            gc.fillRect(startX,startY,noteBeingDrawn.getLength(),noteThicknessInPixels );
-            //gc.strokeLine(noteBeingDrawn.getStep(), noteBeingDrawn.getPitch(), noteBeingDrawn.getStep()+noteBeingDrawn.getLength(), noteBeingDrawn.getPitch());
+            //convert step position to x pixel coordinate
+            double startX=((noteBeingDrawn.getStep()*(double)BLOCK_WIDTH)/256.0);
+            
+            double startY;
+            if(range==0){
+                //single not go in middle
+                startY = HEADER_HEIGHT + ((BLOCK_HEIGHT-HEADER_HEIGHT)/2) - (noteThicknessInPixels/2);
+            }else{
+                //convert pitch to y pixel coordinate
+                int pitchInRange=noteBeingDrawn.getPitch()-block.getLowestNote();
+                int availableHeight=(int)(BLOCK_HEIGHT-HEADER_HEIGHT)-noteThicknessInPixels;
+                startY = HEADER_HEIGHT + availableHeight - (int)((pitchInRange*(double)availableHeight)/(double)range);
+                //startY=availableHeight-(int)((pitchInRange*(double)availableHeight)/(double)range);
+            }
+            
+            //convert length to pixel width
+            int noteWidth=(int)((noteBeingDrawn.getLength()*(double)BLOCK_WIDTH)/256.0);
+            
+            gc.fillRect(startX,startY,noteWidth,noteThicknessInPixels);
         }
-
     }
 
     private void setupMouseHandlers(){
@@ -305,10 +323,6 @@ public class BlockNode extends Pane {
         }else{
             styleNormal();
         }
-    }
-    public void addNote(int step, int pitch, int velocity, int length){ //stupid, dont use anymore
-        block.addNote(step, pitch, velocity, length);
-        drawNotes(); // UI handles its own refresh
     }
 
     public void addNote(Note newNote){ 

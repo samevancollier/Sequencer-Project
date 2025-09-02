@@ -23,6 +23,9 @@ public class Track {
     private Map<Integer, List<Integer>> blockedNotes = new HashMap<>();
     AudioEffect[] fX = new AudioEffect[4];
 
+    private volatile float currentAmplitude = 0.0f;
+    private static final float AMPLITUDE_DECAY = 0.4f;
+
     public Track(String chosenInstrument, int trackNumber){ //will have to pass in like clicks and stuff later i guess
         this.length = 256; //default values
         this.volume = 6;
@@ -101,6 +104,23 @@ public class Track {
 
         fX[fXNum]=null;
     }
+
+    public void updateAmplitude(float newAmplitude){
+        // always apply some decay first
+        this.currentAmplitude *= AMPLITUDE_DECAY;
+        // then take the max of decayed value and new amplitude
+        this.currentAmplitude = Math.max(newAmplitude, this.currentAmplitude);
+    }
+
+    // add a separate decay method for when no audio is playing
+    public void decayAmplitude(){
+        this.currentAmplitude *= AMPLITUDE_DECAY;
+        if(this.currentAmplitude < 0.001f){
+            this.currentAmplitude = 0.0f; // snap to zero when very small
+        }
+    }
+
+    public float getCurrentAmplitude(){return currentAmplitude;}
         
     
     public void setVolume(int volume){
@@ -109,12 +129,16 @@ public class Track {
     }
     public float getVolumeMultiplier(){
         if(muted){return 0.0f;}
-        return volume/9.0f;
+    
+        
+        if(volume == 0) return 0.0f;
+        float normalizedVolume = volume / 9.0f; // 0.11 to 1.0
+        return normalizedVolume * normalizedVolume;
     }
     public AudioEffect[] getFX(){
         return fX;
     }
-    
+    public void setInstrument(Instrument newInstrument){instrument=newInstrument;}
     //getters
     public List<Note> getNotes(int step){
         return notes.getOrDefault(step, Collections.emptyList());

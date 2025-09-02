@@ -172,6 +172,9 @@ public class ThemeManager {
     public Color getHeaderColour(int index){return getTrackColour(index,"header");}
     public Color getEmptyColour(int index){return getTrackColour(index,"empty");}
     public Color getVolumeFill(int index){return getTrackColour(index,"volumefill");}
+    public Color getHighVolumeColour(int index){return getTrackColour(index,"highvolume");}
+    public Color getMidVolumeColour(int index){return getTrackColour(index,"midvolume");}
+    public Color getLowVolumeColour(int index){return getTrackColour(index,"lowvolume");}
 
     public String getTrackColourBaseToString(int index){return getTrackColour(index,"base").toString().replace("0x", "#");}
     public String getTrackColourHighlightToString(int index){return getTrackColour(index,"highlight").toString().replace("0x", "#");}
